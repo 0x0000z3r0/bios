@@ -12,9 +12,6 @@
 #define off_of(cont, field) (size_t)(&(((cont*)0)->field))
 #define cnt_of(arr) (sizeof (arr) / sizeof (arr[0]))
 
-// ICH7-M datasheet: 
-// https://www.intel.com/content/dam/doc/datasheet/i-o-controller-hub-7-datasheet.pdf
-
 union pci_cfg_addr {
 	struct {
 		uint8_t off;
@@ -65,100 +62,19 @@ struct pci_cfg_hdr {
 		uint16_t sts_val;
 	};
 	uint8_t  rid; 
-	uint8_t  pi; 
-	uint8_t  scc; 
-	uint8_t  bcc; 
-	uint8_t  udf0;
-	union {
-		struct {
-			uint8_t rsv:2;
-			uint8_t mlc:6;
-		} plt;
-		uint8_t plt_val;
-	};
-	union {
-		struct {
-			uint8_t typ:7;
-			uint8_t mfd:1;
-		} typ;
-		uint8_t typ_val;
-	};
-	uint8_t  udf1[29];
-	uint32_t ss; 
-	uint8_t  udf2[4];
-	uint8_t  capp; 
-	uint8_t  udf3[11];
-	uint32_t pmbase;
-	uint8_t  acpi_cntl;
-	uint8_t  udf4[3];
-	uint32_t gpiobase;
-	uint8_t  gc;
-	uint8_t  udf5[19];
-	uint8_t  pirq_rout[4];
-	uint8_t  sirq_cntl;
-	uint8_t  udf6[3];
-	uint8_t  pirq_rout2[4];
-	uint8_t  udf7[20];
-	uint8_t  lpc_io_dec;
-	uint8_t  udf8;
-	uint16_t lpc_en;
-	uint32_t gen1_dec;
-	uint32_t gen2_dec;
-	uint32_t gen3_dec;
-	uint32_t gen4_dec;
-	uint8_t  udf9[12];
-	uint8_t  pow_mgm[48];
-	uint32_t fwh_sel1;
-	uint32_t fwh_sel2;
-	uint16_t fwh_dec_en1;
-	uint8_t  udf10[2];
-	union {
-		struct {
-			uint8_t bioswe:1;
-			uint8_t ble:1;
-			uint8_t src:2;
-			uint8_t tss:1;
-			uint8_t rsv:3;
-		} bios_cntl;
-		uint8_t bios_cntl_val;
-	};
-	uint8_t  udf11[3];
-	uint16_t fdcap;
-	uint8_t  fdlen;
-	uint8_t  fdver;
-	uint8_t  fdvct[8];
-	uint8_t  udf12[4];
-	union {
-		struct {
-			uint32_t en:1;
-			uint32_t rsv:13;
-			uint32_t ba:18;
-		} rcba;
-		uint32_t rcba_val;
-	};
 } __attribute__((packed));
 
-struct spi_map {
-	uint16_t spis;
-	uint16_t spic;
-	uint32_t spia;
-	uint8_t  spid0[8];
-	uint8_t  spid1[8];
-	uint8_t  spid2[8];
-	uint8_t  spid3[8];
-	uint8_t  spid4[8];
-	uint8_t  spid5[8];
-	uint8_t  spid6[8];
-	uint8_t  spid7[8];
-	uint32_t bbar;
-	uint16_t preop;
-	uint16_t optype;
-	uint64_t opmenu;
-	uint32_t pbr0;
-	uint32_t pbr1;
-	uint32_t pbr2;
-	uint8_t  rsv[4];
-} __attribute__((packed));
+// Great, another manual error. The description says its 16bit but summary says its 32bit
+union spi_addr {
+	struct {
+		uint32_t rsv0:1;
+		uint32_t sre:1;
+		uint32_t rsv1:1;
+		uint32_t rsv2:2;
+		uint32_t sba:27;
+	};
+	uint32_t val;
+};
 
 static uint32_t
 pci_cfg_get(union pci_cfg_addr cfg_addr)
@@ -194,14 +110,15 @@ main(void)
 		return 1;
 	}
 
-	static const uint8_t pci_lpc_dev = 0x1F;
+	static const uint8_t pci_lpc_dev = 0x14;
+	static const uint8_t pci_lpc_fun = 3;
 
 	uint32_t data;
 
 	union pci_cfg_addr addr;
 	addr.bus  = 0;
 	addr.dev  = pci_lpc_dev;
-	addr.func = 0;
+	addr.func = pci_lpc_fun;
 	addr.off  = 0;
 	
 	printf("trying to find the pci device: %02x\n", pci_lpc_dev);
@@ -219,22 +136,12 @@ main(void)
 
 	printf("vendor id: %04x, device id: %04x\n", hdr.vid, hdr.did);
 
-	addr.off = off_of(struct pci_cfg_hdr, bios_cntl);
-	printf("trying to get the bios control register, offset: %02x\n", addr.off);
+	addr.off = 0xA0;
+	printf("trying to get the spi base address, offset: %02x\n", addr.off);
 
-	hdr.bios_cntl_val = pci_cfg_get(addr);
-	printf("bioc_cntl values, top swap status: %u, spi read config: %u, bios block enable: %u, bios write enable: %u\n", hdr.bios_cntl.tss, hdr.bios_cntl.src, hdr.bios_cntl.ble, hdr.bios_cntl.bioswe);
-
-	addr.off = off_of(struct pci_cfg_hdr, rcba);
-	printf("trying to get the root complex base address, offset: %02x\n", addr.off);
-
-	hdr.rcba_val = pci_cfg_get(addr);
-	printf("rcba values, enable: %u, base address: %08x\n", hdr.rcba.en, hdr.rcba.ba);
-
-	if (!hdr.rcba.en) {
-		printf("rcba is disabled\n");
-		return 1;
-	}
+	union spi_addr spi_addr;
+	spi_addr.val = pci_cfg_get(addr);
+	printf("spi base address, enabled: %u, address: %08x\n", spi_addr.sre, spi_addr.sba);
 
 	int mem;
 	mem = open("/dev/mem", O_RDWR);
@@ -247,40 +154,27 @@ main(void)
 	size = 0x4000;
 
 	off_t off;
-	off = (off_t)hdr.rcba.ba << 14;
+	off = (off_t)spi_addr.sba << 5;
 	printf("trying to map physical memory, size: %zu, offset: %08lx\n", size, off);
 
-	void *rcrb;
-	rcrb = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, mem, off);
-	if (rcrb == MAP_FAILED) {
+	void *sba;
+	sba = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, mem, off);
+	if (sba == MAP_FAILED) {
 		printf("failed to map physical membory, err: %s\n", strerror(errno));
 		return 1;
 	}
 
-	printf("root complex register block starts at %p\n", rcrb);
+	printf("root complex register block starts at %p\n", sba);
 
-	uint32_t gcs_reg;
-	gcs_reg = *(uint32_t*)(rcrb + 0x3410);
-
-	printf("general control and status register, value: %08x, boot bios straps: %02x\n", gcs_reg, (gcs_reg & (0x3 << 11)) >> 11);
-
-	void *spibar;
-	spibar = rcrb + 0x3020;
-
-	printf("spi base address starts at %p\n", spibar);
-
-	for (size_t i = 0; i < sizeof (struct spi_map); ++i) {
-		printf("%02x", *((unsigned char*)spibar + i));
+	for (size_t i = 1; i <= 32; ++i) {
+		printf("%02x", *((unsigned char*)sba + i - 1));
 		if (i % 8 == 0)
 			printf("\n");
 		else if (i % 4 == 0)
 			printf(" ");
 	}
 
-	struct spi_map *map;
-	map = (struct spi_map*)spibar;
-
-	munmap(rcrb, size);
+	munmap(sba, size);
 	close(mem);
 	return 0;
 }
