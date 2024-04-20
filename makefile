@@ -1,4 +1,4 @@
-SRC=pci.c fcha50m.c
+SRC=pci.c
 CFLAGS=-Wall -Wextra -fsanitize=leak,address,undefined
 
 bios: $(SRC)

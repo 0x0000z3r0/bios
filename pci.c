@@ -9,6 +9,8 @@
 #include <sys/mman.h>
 #include <sys/syscall.h>
 
+#include "fcha50m.h"
+
 #define off_of(cont, field) (size_t)(&(((cont*)0)->field))
 #define cnt_of(arr) (sizeof (arr) / sizeof (arr[0]))
 
@@ -63,18 +65,6 @@ struct pci_cfg_hdr {
 	};
 	uint8_t  rid; 
 } __attribute__((packed));
-
-// Great, another manual error. The description says its 16bit but summary says its 32bit
-union spi_addr {
-	struct {
-		uint32_t rsv0:1;
-		uint32_t sre:1;
-		uint32_t rsv1:1;
-		uint32_t rsv2:2;
-		uint32_t sba:27;
-	};
-	uint32_t val;
-};
 
 static uint32_t
 pci_cfg_get(union pci_cfg_addr cfg_addr)
@@ -143,6 +133,38 @@ main(void)
 	spi_addr.val = pci_cfg_get(addr);
 	printf("spi base address, enabled: %u, address: %08x\n", spi_addr.sre, spi_addr.sba);
 
+	addr.off = 0x50;
+	printf("trying to get rom protections, offset: %02x\n", addr.off);
+
+	union rom_prot rom_prot0;
+	rom_prot0.val = pci_cfg_get(addr);
+	printf("rom protection 0, write protected: %u, read protected: %u, rom offset: %08x, rom base: %08x\n", 
+			rom_prot0.write, rom_prot0.read, rom_prot0.offset, (uint32_t)rom_prot0.base << 11);
+
+	addr.off = 0x54;
+	printf("trying to get rom protections, offset: %02x\n", addr.off);
+
+	union rom_prot rom_prot1;
+	rom_prot1.val = pci_cfg_get(addr);
+	printf("rom protection 1, write protected: %u, read protected: %u, rom offset: %08x, rom base: %08x\n", 
+			rom_prot1.write, rom_prot1.read, rom_prot1.offset, (uint32_t)rom_prot1.base << 11);
+	
+	addr.off = 0x58;
+	printf("trying to get rom protections, offset: %02x\n", addr.off);
+
+	union rom_prot rom_prot2;
+	rom_prot2.val = pci_cfg_get(addr);
+	printf("rom protection 2, write protected: %u, read protected: %u, rom offset: %08x, rom base: %08x\n", 
+			rom_prot2.write, rom_prot2.read, rom_prot2.offset, (uint32_t)rom_prot2.base << 11);
+
+	addr.off = 0x5C;
+	printf("trying to get rom protections, offset: %02x\n", addr.off);
+
+	union rom_prot rom_prot3;
+	rom_prot3.val = pci_cfg_get(addr);
+	printf("rom protection 3, write protected: %u, read protected: %u, rom offset: %08x, rom base: %08x\n", 
+			rom_prot3.write, rom_prot3.read, rom_prot3.offset, (uint32_t)rom_prot3.base << 11);
+
 	int mem;
 	mem = open("/dev/mem", O_RDWR);
 	if (res == -1) {
@@ -151,7 +173,7 @@ main(void)
 	}
 
 	size_t size;
-	size = 0x4000;
+	size = 0x1000;
 
 	off_t off;
 	off = (off_t)spi_addr.sba << 5;
@@ -164,15 +186,119 @@ main(void)
 		return 1;
 	}
 
-	printf("root complex register block starts at %p\n", sba);
+	printf("spi base virtual address starts at %p\n", sba);
 
-	for (size_t i = 1; i <= 32; ++i) {
-		printf("%02x", *((unsigned char*)sba + i - 1));
-		if (i % 8 == 0)
-			printf("\n");
-		else if (i % 4 == 0)
-			printf(" ");
-	}
+	struct spi_rcr *spi_rcr;
+	spi_rcr = (struct spi_rcr*)sba;
+
+	printf("spi control register 0: %08x\n"
+		"\toperation code:         %02x\n"
+		"\tsend byte count:        %02x\n"
+		"\treceive byte count:     %02x\n"
+		"\texecute code:           %02x\n"
+		"\treserved:               %02x\n"
+		"\tfast read enable:       %02x\n"
+		"\tspi arbitrary enable:   %02x\n"
+		"\tfifo pointer clear:     %02x\n"
+		"\tfifo pointer increment: %02x\n"
+		"\taccess mac rom enable:  %02x\n"
+		"\thost access rom enable: %02x\n"
+		"\tarbitrary wait count:   %02x\n"
+		"\tspi bridge disable:     %02x\n"
+		"\tspi clock gate:         %02x\n"
+		"\treserved:               %02x\n"
+		"\tspi busy:               %02x\n"
+		"spi restricted command register: %08x\n"
+		"\trestricted command 0: %02x\n"
+		"\trestricted command 1: %02x\n"
+		"\trestricted command 2: %02x\n"
+		"\trestricted command 3: %02x\n"
+		"spi restricted command 2 register: %08x\n"
+		"\trestricted command 4:                 %02x\n"
+		"\trestricted command without address 0: %02x\n"
+		"\trestricted command without address 1: %02x\n"
+		"\trestricted command without address 2: %02x\n"
+		"spi control register 1: %08x\n"
+		"\tspi parameters:                       %02x\n"
+		"\tfifo pointer:                         %02x\n"
+		"\ttrack mac lock enable:                %02x\n"
+		"\tclock speed:                          %02x\n"
+		"\treserved:                             %02x\n"
+		"\trestricted command without address 1: %02x\n"
+		"\trestricted command without address 2: %02x\n"
+		"spi command value 0: %08x\n"
+		"\tmac lock command 0:   %02x\n"
+		"\tmac lock command 1:   %02x\n"
+		"\tmac unlock command 0: %02x\n"
+		"\tmac unlock command 1: %02x\n"
+		"spi command value 1: %08x\n"
+		"\twrite enable:  %02x\n"
+		"\twrite disable: %02x\n"
+		"\tread id:       %02x\n"
+		"\tread status:   %02x\n"
+		"spi command value 2: %08x\n"
+		"\tread byte:  %02x\n"
+		"\tfast read:  %02x\n"
+		"\tpage write: %02x\n"
+		"\tbyte write: %02x\n"
+		"reserved: %02x\n"
+		"spi cs: %02x\n"
+		"\talternate spi cs enable: %02x\n"
+		"\treserved:                %02x\n",
+		spi_rcr->cntrl0_val,
+		spi_rcr->cntrl0.op_code,
+		spi_rcr->cntrl0.tx_byte_cnt,
+		spi_rcr->cntrl0.rx_byte_cnt,
+		spi_rcr->cntrl0.exec_op_code,
+		spi_rcr->cntrl0.reserved_0,
+		spi_rcr->cntrl0.fast_rd_en,
+		spi_rcr->cntrl0.spi_arb_en,
+		spi_rcr->cntrl0.fifo_ptr_clr,
+		spi_rcr->cntrl0.fifo_ptr_inc,
+		spi_rcr->cntrl0.acc_mac_rom_en,
+		spi_rcr->cntrl0.host_acc_rom_en,
+		spi_rcr->cntrl0.arb_wait_cnt,
+		spi_rcr->cntrl0.spi_bridge_dis,
+		spi_rcr->cntrl0.spi_clk_gate,
+		spi_rcr->cntrl0.reserved_1,
+		spi_rcr->cntrl0.spi_busy,
+		spi_rcr->restr_cmd_val,
+		spi_rcr->restr_cmd.restr_cmd0,
+		spi_rcr->restr_cmd.restr_cmd1,
+		spi_rcr->restr_cmd.restr_cmd2,
+		spi_rcr->restr_cmd.restr_cmd3,
+		spi_rcr->restr_cmd2_val,
+		spi_rcr->restr_cmd2.restr_cmd4,
+		spi_rcr->restr_cmd2.restr_cmd_wo_addr0,
+		spi_rcr->restr_cmd2.restr_cmd_wo_addr1,
+		spi_rcr->restr_cmd2.restr_cmd_wo_addr2,
+		spi_rcr->cntrl1_val,
+		spi_rcr->cntrl1.spi_params,
+		spi_rcr->cntrl1.fifo_ptr,
+		spi_rcr->cntrl1.track_mac_lck_en,
+		spi_rcr->cntrl1.norm_speed,
+		spi_rcr->cntrl1.reserved_0,
+		spi_rcr->cntrl1.restr_cmd_wo_addr1,
+		spi_rcr->cntrl1.restr_cmd_wo_addr2,
+		spi_rcr->cmd_val0_val,
+		spi_rcr->cmd_val0.mac_lck_cmd0,
+		spi_rcr->cmd_val0.mac_lck_cmd1,
+		spi_rcr->cmd_val0.mac_ulck_cmd0,
+		spi_rcr->cmd_val0.mac_ulck_cmd1,
+		spi_rcr->cmd_val1_val,
+		spi_rcr->cmd_val1.wren,
+		spi_rcr->cmd_val1.wrdi,
+		spi_rcr->cmd_val1.rdid,
+		spi_rcr->cmd_val1.rdsr,
+		spi_rcr->cmd_val2_val,
+		spi_rcr->cmd_val2.read,
+		spi_rcr->cmd_val2.fread,
+		spi_rcr->cmd_val2.pagewr,
+		spi_rcr->cmd_val2.bytewr,
+		spi_rcr->reserved_0,
+		spi_rcr->spi_cs_val,
+		spi_rcr->spi_cs.alt_spi_cs_en,
+		spi_rcr->spi_cs.reserved_0);
 
 	munmap(sba, size);
 	close(mem);
