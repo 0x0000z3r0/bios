@@ -8,14 +8,12 @@
 
 #define PCI_CFG_ADR 0xCF8
 #define PCI_CFG_DAT 0xCFC
-
 #define PCI_CFG_ADR_EN	31
 #define PCI_CFG_ADR_RSV	24
 #define	PCI_CFG_ADR_BUS	16
 #define PCI_CFG_ADR_DEV	11
 #define	PCI_CFG_ADR_FUN	8
 #define PCI_CFG_ADR_OFF 0
-
 #define PCI_CFG_ADR_EN_MSK 	0x80000000
 #define	PCI_CFG_ADR_RSV_MSK	0x7F000000
 #define	PCI_CFG_ADR_BUS_MSK	0x00FF0000
@@ -28,16 +26,23 @@
 #define	PCI_ADR_LPC_FUN	0x00
 
 #define LPC_RCBA_OFF	0xF0
-
 #define	LPC_RCBA_BASE	14
 #define	LPC_RCBA_RSV	1
 #define LPC_RCBA_EN	0
-
 #define	LPC_RCBA_BASE_MSK	0xFFFFC000
 #define	LPC_RCBA_RSV_MSK	0x00003FFE
 #define LPC_RCBA_EN_MSK		0x00000001
 
 #define SPI_BFPR_OFF	0x00
+#define SPI_BFPR_RSV0	29
+#define SPI_BFPR_PRL	16
+#define SPI_BFPR_RSV1	13
+#define SPI_BFPR_PRB	0
+#define SPI_BFPR_RSV0_MSK	0xE0000000
+#define SPI_BFPR_PRL_MSK	0x1DFF0000
+#define SPI_BFPR_RSV1_MSK	0x0000E000
+#define SPI_BFPR_PRB_MSK	0x00001FFF
+
 #define	SPI_HSFSTS_OFF	0x04
 #define	SPI_HSFCTL_OFF	0x06
 #define	SPI_FADDR_OFF	0x08
@@ -50,7 +55,7 @@
 #define	SPI_FREG2_OFF	0x5C
 #define	SPI_FREG3_OFF	0x60
 #define	SPI_FREG4_OFF	0x64
-#define	SPI_RSV1_OFF	0x68 // ՀՏ։ ICH10֊ում գրած ա 0x67: Բայց բոլորը 4 բայթ են։ Երևի էլի դոկի սխալ ա։
+#define	SPI_RSV1_OFF	0x68 // ՀԹ։ ICH10֊ում գրած ա 0x67: Բայց բոլորը 4 բայթ են։ Երևի էլի դոկի սխալ ա։
 #define	SPI_FPR0_OFF	0x74
 #define	SPI_FPR1_OFF	0x78
 #define	SPI_FPR2_OFF	0x7C
@@ -63,11 +68,11 @@
 #define SPI_OPTYPE_OFF	0x96
 #define SPI_OPMENU_OFF	0x98
 #define SPI_BBAR_OFF	0xA0
-// ՀՏ։ բաց տեղ, արժի նայել ինչի դոկում բան գրած չի
+// ՀԹ։ բաց տեղ, արժի նայել ինչի դոկում բան գրած չի
 #define SPI_FDOC_OFF	0xB0
 #define SPI_FDOD_OFF	0xB4
 #define SPI_RSV3_OFF	0xB8
-#define SPI_AFC_OFF	0xC0 // ՀՏ։ էլի դոկը ասում ա պահած ա իրանց համար RSV3-ում, բայց սա նկարագրած ա:
+#define SPI_AFC_OFF	0xC0 // ՀԹ։ էլի դոկը ասում ա պահած ա իրանց համար RSV3-ում, բայց սա նկարագրած ա:
 #define SPI_LVSCC_OFF	0xC4
 #define SPI_UVSCC_OFF	0xC8
 #define SPI_FPB_OFF	0xD0
@@ -130,6 +135,27 @@ log_lpc_rcba(uint32_t rcba)
 		"-> RSV:  0x%08X\n"
 		"-> EN:   0x%08X\n",
 		rcba, base, rsv, en);
+}
+
+void
+log_spi_bfpr(uint32_t bfpr)
+{
+	uint32_t rsv0;
+	uint32_t prl;
+	uint32_t rsv1;
+	uint32_t prb;
+
+	rsv0 = bfpr & SPI_BFPR_RSV0_MSK;
+	prl  = bfpr & SPI_BFPR_PRL_MSK;
+	rsv1 = bfpr & SPI_BFPR_RSV1_MSK;
+	prb  = bfpr & SPI_BFPR_PRB_MSK;
+
+	printf("SPI BFPR: 0x%08X\n"
+		"-> RSV0: 0x%08X\n"
+		"-> PRL:  0x%08X\n"
+		"-> RSV1: 0x%08X\n"
+		"-> PRB:  0x%08X\n",
+		bfpr, rsv0, prl, rsv1, prb);
 }
 
 int
@@ -201,7 +227,9 @@ main(void)
 	spirb = rcrb + spibar;
 	printf("SPIBAR: 0x%08lX, SPIRB: 0x%016lX\n", spibar, (uintptr_t)spirb);
 
-	
+	uint32_t spi_bfpr;
+	spi_bfpr = *(uint32_t*)((uint8_t*)spirb + SPI_BFPR_OFF);
+	log_spi_bfpr(spi_bfpr);
 
 _MUNMAP_RCRB:
 	munmap(rcrb, rcrb_size);
