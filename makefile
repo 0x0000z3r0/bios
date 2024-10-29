@@ -1,5 +1,7 @@
-SRC=pci.c
-CFLAGS=-Wall -Wextra -fsanitize=leak,address,undefined
+PROG=mlw
 
-bios: $(SRC)
-	$(CC) $(CFLAGS) $^ -o $@
+$(PROG): main.c
+	$(CC) -Wall -Wextra -static $^ -o $@
+
+clean:
+	rm $(PROG)
