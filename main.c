@@ -605,6 +605,8 @@ main(int argc, char *argv[])
 				printf("DUMP FILE PATH: %s\n", output);
 
 				++i;
+			} else {
+				printf("UNKNOWN OPTION: %s\n", argv[i]);
 			}
 		}
 	}
@@ -678,7 +680,6 @@ main(int argc, char *argv[])
 		log_lpc_rcba(lpc_rcba);
 		if (!(lpc_rcba & LPC_RCBA_EN_MSK)) {
 			printf("FAILED to update the LPC RCBA register\n");
-			goto _EXIT;
 		}
 	}
 
@@ -708,12 +709,12 @@ main(int argc, char *argv[])
 		log_rcrb_gcs(rcrb_gcs);
 	}
 
-	uint32_t rcrb_gcs_bss;
-	rcrb_gcs_bss = (rcrb_gcs & RCRB_GCS_BBS_MSK) >> RCRB_GCS_BBS;
+	uint32_t rcrb_gcs_bbs;
+	rcrb_gcs_bbs = (rcrb_gcs & RCRB_GCS_BBS_MSK) >> RCRB_GCS_BBS;
 	static const char *bios_place[] = { "SPI", "SPI", "PCI", "LPC" };
-	printf("BIOS is in %s\n", bios_place[rcrb_gcs_bss]);
+	printf("BIOS is in %s\n", bios_place[rcrb_gcs_bbs]);
 
-	if (rcrb_gcs_bss & 0b10) {
+	if (rcrb_gcs_bbs & 0b10) {
 		printf("BIOS is not in the SPI flash, changing the interface\n");
 		if (rcrb_gcs & RCRB_GCS_BILD) {
 			printf("RCRB GCS BILD is enabled, can not modify the BBS\n");
@@ -786,10 +787,13 @@ main(int argc, char *argv[])
 	printf("SPI FDBAR: 0x%08X\n", spi_fdbar);
 
 	int dump;
-	dump = open(output, O_RDWR | O_CREAT);
-	if (dump == -1) {
-		perror("DUMP OPEN");
-		goto _MUNMAP_RCRB;
+	dump = -1;
+	if (output != NULL) {
+		dump = open(output, O_RDWR | O_CREAT);
+		if (dump == -1) {
+			perror("DUMP OPEN");
+			goto _MUNMAP_RCRB;
+		}
 	}
 
 	for (uint32_t addr = 0x0; addr <= 0x1000; addr += SPI_BLK)
@@ -866,11 +870,13 @@ main(int argc, char *argv[])
 					(data[i] & 0x000000FF) >> 0);
 			}
 
-			ssize_t bytes;
-			bytes = write(dump, data, sizeof (data));
-			if (bytes != sizeof (data) || bytes == -1) {
-				perror("DUMP WRITE");
-				goto _CLOSE_DUMP;
+			if (output != NULL) {
+				ssize_t bytes;
+				bytes = write(dump, data, sizeof (data));
+				if (bytes != sizeof (data) || bytes == -1) {
+					perror("DUMP WRITE");
+					goto _CLOSE_DUMP;
+				}
 			}
 		}
 
@@ -880,7 +886,9 @@ main(int argc, char *argv[])
 	}	
 
 _CLOSE_DUMP:
-	close(dump);
+	if (dump != -1) {
+		close(dump);
+	}
 _MUNMAP_RCRB:
 	munmap(rcrb, rcrb_size);
 _CLOSE_MEM:
