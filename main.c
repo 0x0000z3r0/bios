@@ -103,7 +103,26 @@
 #define SPI_HSFSTS_FDONE_MSK	0x0001
 
 #define	SPI_HSFCTL_OFF	0x06
+#define SPI_HSFCTL_FSMIE	15
+#define SPI_HSFCTL_RSV0		14
+#define SPI_HSFCTL_FDBC		8
+#define SPI_HSFCTL_RSV1		3
+#define SPI_HSFCTL_FCYCLE	1
+#define SPI_HSFCTL_FGO		0
+#define SPI_HSFCTL_FSMIE_MSK    0x8000
+#define SPI_HSFCTL_RSV0_MSK     0x4000
+#define SPI_HSFCTL_FDBC_MSK     0x3F00
+#define SPI_HSFCTL_RSV1_MSK     0x00F8
+#define SPI_HSFCTL_FCYCLE_MSK   0x0006
+#define SPI_HSFCTL_FGO_MSK	0x0001
+
+
 #define	SPI_FADDR_OFF	0x08
+#define SPI_FADDR_RSV	25
+#define SPI_FADDR_FLA	0
+#define SPI_FADDR_RSV_MSK 0x00000000
+#define SPI_FADDR_FLA_MSK 0x00000000
+
 #define	SPI_RSV0_OFF	0x0C	
 #define	SPI_FDATA0_OFF	0xF0
 #define	SPI_FDATAN_OFF	0x14
@@ -257,6 +276,8 @@
 #define SPI_LVSCC_OFF	0xC4
 #define SPI_UVSCC_OFF	0xC8
 #define SPI_FPB_OFF	0xD0
+
+#define SPI_BLK 64
 
 uint32_t
 pci_adr(uint32_t bus, uint32_t dev, uint32_t fun, uint32_t off)
@@ -466,6 +487,48 @@ log_spi_fprx(uint32_t fpr)
 		"-> RSV1: 0x%08X\n"
 		"-> PRB:  0x%08X\n",
 		fpr, wpe, rsv0, prl, rpe, rsv1, prb);
+}
+
+void
+log_spi_faddr(uint32_t faddr)
+{
+	uint32_t rsv;
+	uint32_t fla;
+
+	rsv = faddr & SPI_FADDR_RSV_MSK;
+	fla = faddr & SPI_FADDR_FLA_MSK;
+
+	printf("FADDR: 0x%08X\n"
+		"-> RSV: 0x%08X\n"
+		"-> FLA: 0x%08X\n",
+		faddr, rsv, fla);
+}
+
+void
+log_spi_hsfctl(uint16_t hsfctl)
+{
+	uint16_t fsmie;
+	uint16_t rsv0;
+	uint16_t fdbc;
+	uint16_t rsv1;
+	uint16_t fcycle;
+	uint16_t fgo;
+
+	fsmie  = hsfctl & SPI_HSFCTL_FSMIE_MSK; 
+	rsv0   = hsfctl & SPI_HSFCTL_RSV0_MSK; 
+	fdbc   = hsfctl & SPI_HSFCTL_FDBC_MSK; 
+	rsv1   = hsfctl & SPI_HSFCTL_RSV1_MSK; 
+	fcycle = hsfctl & SPI_HSFCTL_FCYCLE_MSK; 
+	fgo    = hsfctl & SPI_HSFCTL_FGO_MSK; 
+
+	printf("HSFCTL: 0x%04X\n"
+		"-> FSMIE:  0x%04X\n"
+		"-> RSV0:   0x%04X\n"
+		"-> FDBC:   0x%04X\n"
+		"-> RSV1:   0x%04X\n"
+		"-> FCYCLE: 0x%04X\n"
+		"-> FGO:    0x%04X\n",
+		hsfctl, fsmie, rsv0, fdbc, rsv1, fcycle, fgo);
 }
 
 void
@@ -695,6 +758,32 @@ main(void)
 	spi_fdbar = spi_freg[0] & SPI_FREG0_RB_MSK;
 	printf("SPI FDBAR: 0x%08X\n", spi_fdbar);
 
+	for (uint32_t addr = 0x0; addr < 0xFFF; addr += SPI_BLK)
+	{
+		printf("SPI CYCLE, ADDR: 0x%08X, BLK: 0x%02X\n", addr, SPI_BLK);
+
+		uint16_t hsfsts;
+		hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
+		hsfsts &= ~((1 << SPI_HSFSTS_AEL) | (1 << SPI_HSFSTS_FCERR) | (1 << SPI_HSFSTS_FDONE));
+		*(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF) = hsfsts;
+		log_spi_hsfsts(hsfsts);
+		
+		uint32_t faddr;
+		faddr = *(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF);
+		faddr &= ~SPI_FADDR_FLA;
+		faddr |= addr;
+		*(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF) = faddr;
+		log_spi_faddr(faddr);
+
+		uint16_t hsfctl;
+		hsfctl = *(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF);
+		// ՀԹ։ SPI_BLK = 64 => SPI.HSFCTL.FDBC = 0b111111
+		hsfctl |= SPI_HSFCTL_FDBC_MSK;
+		hsfctl &= ~(SPI_HSFCTL_FCYCLE_MSK);
+		hsfctl |= (1 << SPI_HSFCTL_FGO);
+		*(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF) = hsfctl;
+		log_spi_hsfctl(hsfctl);
+	}	
 
 _MUNMAP_RCRB:
 	munmap(rcrb, rcrb_size);
