@@ -120,11 +120,14 @@
 #define	SPI_FADDR_OFF	0x08
 #define SPI_FADDR_RSV	25
 #define SPI_FADDR_FLA	0
-#define SPI_FADDR_RSV_MSK 0x00000000
-#define SPI_FADDR_FLA_MSK 0x00000000
+#define SPI_FADDR_RSV_MSK 0xFE000000
+#define SPI_FADDR_FLA_MSK 0x01FFFFFF
 
 #define	SPI_RSV0_OFF	0x0C	
-#define	SPI_FDATA0_OFF	0xF0
+
+#define SPI_FDATA_CNT 16
+
+#define	SPI_FDATA0_OFF	0x10
 #define	SPI_FDATAN_OFF	0x14
 
 #define	SPI_FRACC_OFF	0x50
@@ -137,7 +140,7 @@
 #define SPI_FRACC_BRWA_MSK	0x0000FF00
 #define SPI_FRACC_BRRA_MSK	0x000000FF
 
-#define SPI_REG_CNT 5
+#define SPI_FREG_CNT 5
 
 #define	SPI_FREG0_OFF	0x54
 #define SPI_FREG0_RSV0	29
@@ -189,7 +192,7 @@
 #define SPI_FREG4_RSV1_MSK	0x0000E000
 #define SPI_FREG4_RB_MSK	0x00001FFF
 
-#define	SPI_RSV1_OFF	0x68 // ՀԹ։ ICH10֊ում գրած ա 0x67: Բայց բոլորը 4 բայթ են։ Երևի էլի դոկի սխալ ա։
+#define	SPI_RSV1_OFF	0x68 // ՀԹ` ICH10֊ում գրած ա 0x67: Բայց բոլորը 4 բայթ են։ Երևի էլի դոկի սխալ ա։
 			     
 #define	SPI_FPR0_OFF	0x74
 #define SPI_FPR0_WPE	31
@@ -268,11 +271,11 @@
 #define SPI_OPTYPE_OFF	0x96
 #define SPI_OPMENU_OFF	0x98
 #define SPI_BBAR_OFF	0xA0
-// ՀԹ։ բաց տեղ, արժի նայել ինչի դոկում բան գրած չի
+// ՀԹ` բաց տեղ, արժի նայել ինչի դոկում բան գրած չի
 #define SPI_FDOC_OFF	0xB0
 #define SPI_FDOD_OFF	0xB4
 #define SPI_RSV3_OFF	0xB8
-#define SPI_AFC_OFF	0xC0 // ՀԹ։ էլի դոկը ասում ա պահած ա իրանց համար RSV3-ում, բայց սա նկարագրած ա:
+#define SPI_AFC_OFF	0xC0 // ՀԹ` էլի դոկը ասում ա պահած ա իրանց համար RSV3-ում, բայց սա նկարագրած ա:
 #define SPI_LVSCC_OFF	0xC4
 #define SPI_UVSCC_OFF	0xC8
 #define SPI_FPB_OFF	0xD0
@@ -743,9 +746,9 @@ main(void)
 		printf("Modified the SPI FRACC\n");
 	}
 
-	uint32_t spi_freg[SPI_REG_CNT];
-	uint32_t spi_fpr[SPI_REG_CNT];
-	for (size_t i = 0; i < SPI_REG_CNT; ++i) {
+	uint32_t spi_freg[SPI_FREG_CNT];
+	uint32_t spi_fpr[SPI_FREG_CNT];
+	for (size_t i = 0; i < SPI_FREG_CNT; ++i) {
 		printf("[!] FREG, FPR index [%zu]\n", i);
 		spi_freg[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FREG0_OFF + i * sizeof (uint32_t));
 		spi_fpr[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FPR0_OFF + i * sizeof (uint32_t));
@@ -758,31 +761,64 @@ main(void)
 	spi_fdbar = spi_freg[0] & SPI_FREG0_RB_MSK;
 	printf("SPI FDBAR: 0x%08X\n", spi_fdbar);
 
-	for (uint32_t addr = 0x0; addr < 0xFFF; addr += SPI_BLK)
+	for (uint32_t addr = 0x0; addr < 0x1000; addr += SPI_BLK)
 	{
 		printf("SPI CYCLE, ADDR: 0x%08X, BLK: 0x%02X\n", addr, SPI_BLK);
 
 		uint16_t hsfsts;
 		hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
-		hsfsts &= ~((1 << SPI_HSFSTS_AEL) | (1 << SPI_HSFSTS_FCERR) | (1 << SPI_HSFSTS_FDONE));
-		*(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF) = hsfsts;
 		log_spi_hsfsts(hsfsts);
+		hsfsts &= ~((1 << SPI_HSFSTS_AEL) | (1 << SPI_HSFSTS_FCERR) | (1 << SPI_HSFSTS_FDONE));
+		log_spi_hsfsts(hsfsts);
+		*(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF) = hsfsts;
 		
 		uint32_t faddr;
 		faddr = *(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF);
-		faddr &= ~SPI_FADDR_FLA;
-		faddr |= addr;
-		*(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF) = faddr;
 		log_spi_faddr(faddr);
+		faddr &= ~SPI_FADDR_FLA_MSK;
+		faddr |= addr;
+		log_spi_faddr(faddr);
+		*(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF) = faddr;
 
 		uint16_t hsfctl;
 		hsfctl = *(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF);
-		// ՀԹ։ SPI_BLK = 64 => SPI.HSFCTL.FDBC = 0b111111
+		log_spi_hsfctl(hsfctl);
+		// ՀԹ՝ ME-ին պետք չի ասել որ կարդում ենք SPI-ից
+		hsfctl &= ~(SPI_HSFCTL_FSMIE_MSK);
+		// ՀԹ՝ SPI_BLK = 64 => SPI.HSFCTL.FDBC = 64 - 1 = 0b111111
 		hsfctl |= SPI_HSFCTL_FDBC_MSK;
+		// ՀԹ՝ մաքրենք ֆունկցայի բիթերը, 0b00 = կարդալ
 		hsfctl &= ~(SPI_HSFCTL_FCYCLE_MSK);
 		hsfctl |= (1 << SPI_HSFCTL_FGO);
-		*(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF) = hsfctl;
 		log_spi_hsfctl(hsfctl);
+		*(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF) = hsfctl;
+
+		hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
+		while (!(hsfsts & SPI_HSFSTS_FDONE_MSK)) {
+			printf("HSFS.FDONE is NOT SET, waiting\n");
+			hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
+		}
+		printf("SPI HSFS.DONE is SET\n");
+
+		if (hsfsts & SPI_HSFSTS_AEL_MSK) {
+			printf("VIOLATED SECURITY Restrictions\n");
+		}
+
+		if (hsfsts & SPI_HSFSTS_FCERR_MSK) {
+			printf("REGISTER Access Error\n");
+		}
+
+		uint32_t data[SPI_FDATA_CNT];
+		for (size_t i = 0; i < SPI_FDATA_CNT; ++i) {
+			data[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FDATA0_OFF + i * sizeof (uint32_t));
+
+			printf("%02X%02X%02X%02X ",
+				data[i] & 0xFF000000,
+				data[i] & 0x00FF0000,
+				data[i] & 0x0000FF00,
+				data[i] & 0x000000FF);
+		}
+		printf("\n");
 	}	
 
 _MUNMAP_RCRB:
