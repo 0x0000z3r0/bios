@@ -118,17 +118,130 @@
 #define SPI_FRACC_BRWA_MSK	0x0000FF00
 #define SPI_FRACC_BRRA_MSK	0x000000FF
 
+#define SPI_REG_CNT 5
+
 #define	SPI_FREG0_OFF	0x54
+#define SPI_FREG0_RSV0	29
+#define SPI_FREG0_RL	16
+#define SPI_FREG0_RSV1	13
+#define SPI_FREG0_RB	0
+#define SPI_FREG0_RSV0_MSK	0xE0000000
+#define SPI_FREG0_RL_MSK	0x1FFF0000
+#define SPI_FREG0_RSV1_MSK	0x0000E000
+#define SPI_FREG0_RB_MSK	0x00001FFF
+
 #define	SPI_FREG1_OFF	0x58
+#define SPI_FREG1_RSV0	29
+#define SPI_FREG1_RL	16
+#define SPI_FREG1_RSV1	13
+#define SPI_FREG1_RB	0
+#define SPI_FREG1_RSV0_MSK	0xE0000000
+#define SPI_FREG1_RL_MSK	0x1FFF0000
+#define SPI_FREG1_RSV1_MSK	0x0000E000
+#define SPI_FREG1_RB_MSK	0x00001FFF
+
 #define	SPI_FREG2_OFF	0x5C
+#define SPI_FREG2_RSV0	29
+#define SPI_FREG2_RL	16
+#define SPI_FREG2_RSV1	13
+#define SPI_FREG2_RB	0
+#define SPI_FREG2_RSV0_MSK	0xE0000000
+#define SPI_FREG2_RL_MSK	0x1FFF0000
+#define SPI_FREG2_RSV1_MSK	0x0000E000
+#define SPI_FREG2_RB_MSK	0x00001FFF
+
 #define	SPI_FREG3_OFF	0x60
+#define SPI_FREG3_RSV0	29
+#define SPI_FREG3_RL	16
+#define SPI_FREG3_RSV1	13
+#define SPI_FREG3_RB	0
+#define SPI_FREG3_RSV0_MSK	0xE0000000
+#define SPI_FREG3_RL_MSK	0x1FFF0000
+#define SPI_FREG3_RSV1_MSK	0x0000E000
+#define SPI_FREG3_RB_MSK	0x00001FFF
+
 #define	SPI_FREG4_OFF	0x64
+#define SPI_FREG4_RSV0	29
+#define SPI_FREG4_RL	16
+#define SPI_FREG4_RSV1	13
+#define SPI_FREG4_RB	0
+#define SPI_FREG4_RSV0_MSK	0xE0000000
+#define SPI_FREG4_RL_MSK	0x1FFF0000
+#define SPI_FREG4_RSV1_MSK	0x0000E000
+#define SPI_FREG4_RB_MSK	0x00001FFF
+
 #define	SPI_RSV1_OFF	0x68 // ՀԹ։ ICH10֊ում գրած ա 0x67: Բայց բոլորը 4 բայթ են։ Երևի էլի դոկի սխալ ա։
+			     
 #define	SPI_FPR0_OFF	0x74
+#define SPI_FPR0_WPE	31
+#define SPI_FPR0_RSV0	29
+#define SPI_FPR0_PRL	16
+#define SPI_FPR0_RPE	15
+#define SPI_FPR0_RSV1	13
+#define SPI_FPR0_PRB	0
+#define SPI_FPR0_WPE_MSK	0x80000000
+#define SPI_FPR0_RSV0_MSK	0x60000000
+#define SPI_FPR0_PRL_MSK 	0x1FFF0000
+#define SPI_FPR0_RPE_MSK 	0x00008000
+#define SPI_FPR0_RSV1_MSK	0x00006000
+#define SPI_FPR0_PRB_MSK 	0x00001FFF
+
 #define	SPI_FPR1_OFF	0x78
+#define SPI_FPR1_WPE	31
+#define SPI_FPR1_RSV0	29
+#define SPI_FPR1_PRL	16
+#define SPI_FPR1_RPE	15
+#define SPI_FPR1_RSV1	13
+#define SPI_FPR1_PRB	0
+#define SPI_FPR1_WPE_MSK	0x80000000
+#define SPI_FPR1_RSV0_MSK	0x60000000
+#define SPI_FPR1_PRL_MSK 	0x1FFF0000
+#define SPI_FPR1_RPE_MSK 	0x00008000
+#define SPI_FPR1_RSV1_MSK	0x00006000
+#define SPI_FPR1_PRB_MSK 	0x00001FFF
+
 #define	SPI_FPR2_OFF	0x7C
+#define SPI_FPR2_WPE	31
+#define SPI_FPR2_RSV0	29
+#define SPI_FPR2_PRL	16
+#define SPI_FPR2_RPE	15
+#define SPI_FPR2_RSV1	13
+#define SPI_FPR2_PRB	0
+#define SPI_FPR2_WPE_MSK	0x80000000
+#define SPI_FPR2_RSV0_MSK	0x60000000
+#define SPI_FPR2_PRL_MSK 	0x1FFF0000
+#define SPI_FPR2_RPE_MSK 	0x00008000
+#define SPI_FPR2_RSV1_MSK	0x00006000
+#define SPI_FPR2_PRB_MSK 	0x00001FFF
+
 #define	SPI_FPR3_OFF	0x80
+#define SPI_FPR3_WPE	31
+#define SPI_FPR3_RSV0	29
+#define SPI_FPR3_PRL	16
+#define SPI_FPR3_RPE	15
+#define SPI_FPR3_RSV1	13
+#define SPI_FPR3_PRB	0
+#define SPI_FPR3_WPE_MSK	0x80000000
+#define SPI_FPR3_RSV0_MSK	0x60000000
+#define SPI_FPR3_PRL_MSK 	0x1FFF0000
+#define SPI_FPR3_RPE_MSK 	0x00008000
+#define SPI_FPR3_RSV1_MSK	0x00006000
+#define SPI_FPR3_PRB_MSK 	0x00001FFF
+
 #define SPI_FPR4_OFF	0x84
+#define SPI_FPR4_WPE	31
+#define SPI_FPR4_RSV0	29
+#define SPI_FPR4_PRL	16
+#define SPI_FPR4_RPE	15
+#define SPI_FPR4_RSV1	13
+#define SPI_FPR4_PRB	0
+#define SPI_FPR4_WPE_MSK	0x80000000
+#define SPI_FPR4_RSV0_MSK	0x60000000
+#define SPI_FPR4_PRL_MSK 	0x1FFF0000
+#define SPI_FPR4_RPE_MSK 	0x00008000
+#define SPI_FPR4_RSV1_MSK	0x00006000
+#define SPI_FPR4_PRB_MSK 	0x00001FFF
+
 #define SPI_RSV2_OFF	0x88
 #define SPI_SSFSTS_OFF	0x90
 #define SPI_SSFCTL_OFF	0x91
@@ -308,6 +421,54 @@ log_spi_fracc(uint32_t fracc)
 }
 
 void
+log_spi_fregx(uint32_t freg)
+{
+	uint32_t rsv0;
+	uint32_t rl;
+	uint32_t rsv1;
+	uint32_t rb;
+
+	rsv0 = freg & SPI_FREG0_RSV0_MSK;
+	rl   = ((freg & SPI_FREG0_RL_MSK) >> 4) | 0xFFF; 
+	rsv1 = freg & SPI_FREG0_RSV1_MSK; 
+	rb   = freg & SPI_FREG0_RB_MSK; 
+
+	printf("SPI FREG: 0x%08X\n"
+		"-> RSV0: 0x%08X\n"
+		"-> RL:   0x%08X\n"
+		"-> RSV1: 0x%08X\n"
+		"-> RB:   0x%08X\n",
+		freg, rsv0, rl, rsv1, rb);
+}
+
+void
+log_spi_fprx(uint32_t fpr)
+{
+	uint32_t wpe;
+	uint32_t rsv0;
+	uint32_t prl;
+	uint32_t rpe;
+	uint32_t rsv1;
+	uint32_t prb;
+
+	wpe  = fpr & SPI_FPR0_WPE_MSK;
+	rsv0 = fpr & SPI_FPR0_RSV0_MSK;
+	prl  = fpr & SPI_FPR0_PRL_MSK;
+	rpe  = fpr & SPI_FPR0_RPE_MSK;
+	rsv1 = fpr & SPI_FPR0_RSV1_MSK;
+	prb  = fpr & SPI_FPR0_PRB_MSK;
+
+	printf("SPI FPR: 0x%08X\n"
+		"-> WPE:  0x%08X\n"
+		"-> RSV0: 0x%08X\n"
+		"-> PRL:  0x%08X\n"
+		"-> RPE:  0x%08X\n"
+		"-> RSV1: 0x%08X\n"
+		"-> PRB:  0x%08X\n",
+		fpr, wpe, rsv0, prl, rpe, rsv1, prb);
+}
+
+void
 log_rcrb_gcs(uint32_t gcs)
 {
 	uint32_t rsv0;
@@ -365,7 +526,6 @@ main(void)
 		goto _EXIT;
 	}	
 
-	// BIOS_CNTL
 	uint8_t lpc_bios_cntl;
 	{
 		uint32_t lpc_adr;
@@ -382,8 +542,23 @@ main(void)
 		lpc_bios_cntl = dat & 0xFF;
 		log_lpc_bios_cntl(lpc_bios_cntl);
 
+		if (!(lpc_bios_cntl & LPC_BIOS_CNTL_BIOSWE_MSK)) {
+			printf("BIOSWE in LPC BIOS_CNTL is disabled, trying to set it\n");
+
+			uint8_t lpc_bios_cntl_new;
+			lpc_bios_cntl_new = lpc_bios_cntl | (1 << LPC_BIOS_CNTL_BIOSWE);
+			log_lpc_bios_cntl(lpc_bios_cntl_new);
+
+			outl(lpc_adr, PCI_CFG_ADR);
+			uint32_t dat;
+			dat = lpc_bios_cntl_new;
+			outl(dat, PCI_CFG_DAT);
+
+			printf("BIOSWE MODIFIED\n");
+		}
+
 	}
-	// RCBA
+
 	uint32_t lpc_rcba;
 	{
 		uint32_t lpc_adr;
@@ -438,7 +613,6 @@ main(void)
 	printf("RCRB, PHY: 0x%08X, VIRT: 0x%016lX\n", rcba_base, (uintptr_t)rcrb);
 
 	uint32_t rcrb_gcs;
-	// GCS
 	{
 		rcrb_gcs = *(uint32_t*)((uint8_t*)rcrb + RCRB_GCS);
 		log_rcrb_gcs(rcrb_gcs);
@@ -469,21 +643,18 @@ main(void)
 	printf("SPIBAR: 0x%08X, SPIRB: 0x%016lX\n", RCRB_SPIBAR, (uintptr_t)spirb);
 
 	uint32_t spi_bfpr;
-	// BFPR
 	{
 		spi_bfpr = *(uint32_t*)((uint8_t*)spirb + SPI_BFPR_OFF);
 		log_spi_bfpr(spi_bfpr);
 	}
 
 	uint16_t spi_hsfsts;
-	// HSFS
 	{
 		spi_hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
 		log_spi_hsfsts(spi_hsfsts);
 	}
 
 	uint32_t spi_fracc;
-	// FRAP
 	{
 		spi_fracc = *(uint32_t*)((uint8_t*)spirb + SPI_FRACC_OFF);
 		log_spi_fracc(spi_fracc);
@@ -508,6 +679,21 @@ main(void)
 
 		printf("Modified the SPI FRACC\n");
 	}
+
+	uint32_t spi_freg[SPI_REG_CNT];
+	uint32_t spi_fpr[SPI_REG_CNT];
+	for (size_t i = 0; i < SPI_REG_CNT; ++i) {
+		printf("[!] FREG, FPR index [%zu]\n", i);
+		spi_freg[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FREG0_OFF + i * sizeof (uint32_t));
+		spi_fpr[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FPR0_OFF + i * sizeof (uint32_t));
+
+		log_spi_fregx(spi_freg[i]);
+		log_spi_fprx(spi_fpr[i]);
+	}
+
+	uint32_t spi_fdbar;
+	spi_fdbar = spi_freg[0] & SPI_FREG0_RB_MSK;
+	printf("SPI FDBAR: 0x%08X\n", spi_fdbar);
 
 
 _MUNMAP_RCRB:
