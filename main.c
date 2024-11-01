@@ -581,9 +581,33 @@ log_rcrb_gcs(uint32_t gcs)
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
 	printf("START\n");
+
+	int verbose;
+	verbose = 0;
+
+	char *output;
+	output = NULL;
+	if (argc > 1) {
+		for (int i = 1; i < argc; ++i) {
+			if (strcmp("-v", argv[i]) == 0) {
+				printf("VERBOSE MODE Selected\n");
+				verbose = 1;
+			} else if (strcmp("-o", argv[i]) == 0) {
+				if (i == argc - 1) {
+					printf("OUTPUT PATH Missing\n");
+					return 0;
+				}
+
+				output = argv[i + 1];
+				printf("DUMP FILE PATH: %s\n", output);
+
+				++i;
+			}
+		}
+	}
 
 	int res;
 	res = iopl(3);
@@ -761,28 +785,45 @@ main(void)
 	spi_fdbar = spi_freg[0] & SPI_FREG0_RB_MSK;
 	printf("SPI FDBAR: 0x%08X\n", spi_fdbar);
 
-	for (uint32_t addr = 0x0; addr < 0x1000; addr += SPI_BLK)
+	int dump;
+	dump = open(output, O_RDWR | O_CREAT);
+	if (dump == -1) {
+		perror("DUMP OPEN");
+		goto _MUNMAP_RCRB;
+	}
+
+	for (uint32_t addr = 0x0; addr <= 0x1000; addr += SPI_BLK)
 	{
 		printf("SPI CYCLE, ADDR: 0x%08X, BLK: 0x%02X\n", addr, SPI_BLK);
 
 		uint16_t hsfsts;
 		hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
-		log_spi_hsfsts(hsfsts);
+		if (verbose) {
+			log_spi_hsfsts(hsfsts);
+		}
 		hsfsts &= ~((1 << SPI_HSFSTS_AEL) | (1 << SPI_HSFSTS_FCERR) | (1 << SPI_HSFSTS_FDONE));
-		log_spi_hsfsts(hsfsts);
+		if (verbose) {
+			log_spi_hsfsts(hsfsts);
+		}
 		*(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF) = hsfsts;
 		
 		uint32_t faddr;
 		faddr = *(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF);
-		log_spi_faddr(faddr);
+		if (verbose) {
+			log_spi_faddr(faddr);
+		}
 		faddr &= ~SPI_FADDR_FLA_MSK;
 		faddr |= addr;
-		log_spi_faddr(faddr);
+		if (verbose) {
+			log_spi_faddr(faddr);
+		}
 		*(uint32_t*)((uint8_t*)spirb + SPI_FADDR_OFF) = faddr;
 
 		uint16_t hsfctl;
 		hsfctl = *(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF);
-		log_spi_hsfctl(hsfctl);
+		if (verbose) {
+			log_spi_hsfctl(hsfctl);
+		}
 		// ՀԹ՝ ME-ին պետք չի ասել որ կարդում ենք SPI-ից
 		hsfctl &= ~(SPI_HSFCTL_FSMIE_MSK);
 		// ՀԹ՝ SPI_BLK = 64 => SPI.HSFCTL.FDBC = 64 - 1 = 0b111111
@@ -790,7 +831,9 @@ main(void)
 		// ՀԹ՝ մաքրենք ֆունկցայի բիթերը, 0b00 = կարդալ
 		hsfctl &= ~(SPI_HSFCTL_FCYCLE_MSK);
 		hsfctl |= (1 << SPI_HSFCTL_FGO);
-		log_spi_hsfctl(hsfctl);
+		if (verbose) {
+			log_spi_hsfctl(hsfctl);
+		}
 		*(uint16_t*)((uint8_t*)spirb + SPI_HSFCTL_OFF) = hsfctl;
 
 		hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
@@ -798,7 +841,10 @@ main(void)
 			printf("HSFS.FDONE is NOT SET, waiting\n");
 			hsfsts = *(uint16_t*)((uint8_t*)spirb + SPI_HSFSTS_OFF);
 		}
-		printf("SPI HSFS.DONE is SET\n");
+
+		if (verbose) {
+			printf("SPI HSFS.DONE is SET\n");
+		}
 
 		if (hsfsts & SPI_HSFSTS_AEL_MSK) {
 			printf("VIOLATED SECURITY Restrictions\n");
@@ -812,15 +858,29 @@ main(void)
 		for (size_t i = 0; i < SPI_FDATA_CNT; ++i) {
 			data[i] = *(uint32_t*)((uint8_t*)spirb + SPI_FDATA0_OFF + i * sizeof (uint32_t));
 
-			printf("%02X%02X%02X%02X ",
-				data[i] & 0xFF000000,
-				data[i] & 0x00FF0000,
-				data[i] & 0x0000FF00,
-				data[i] & 0x000000FF);
+			if (verbose) {
+				printf("%02X%02X%02X%02X ",
+					(data[i] & 0xFF000000) >> 24,
+					(data[i] & 0x00FF0000) >> 16,
+					(data[i] & 0x0000FF00) >> 8,
+					(data[i] & 0x000000FF) >> 0);
+			}
+
+			ssize_t bytes;
+			bytes = write(dump, data, sizeof (data));
+			if (bytes != sizeof (data) || bytes == -1) {
+				perror("DUMP WRITE");
+				goto _CLOSE_DUMP;
+			}
 		}
-		printf("\n");
+
+		if (verbose) {
+			printf("\n");
+		}
 	}	
 
+_CLOSE_DUMP:
+	close(dump);
 _MUNMAP_RCRB:
 	munmap(rcrb, rcrb_size);
 _CLOSE_MEM:
