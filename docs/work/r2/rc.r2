@@ -78,7 +78,7 @@
 "e asm.arch = x86"
 "e asm.assembler = "
 "e asm.bbmiddle = true"
-"e asm.bits = 16"
+"e asm.bits = 64"
 "e asm.bytes = true"
 "e asm.bytes.align = false"
 "e asm.bytes.asbits = false"
@@ -426,7 +426,7 @@
 "e hex.align = false"
 "e hex.ascii = true"
 "e hex.bytes = true"
-"e hex.cols = 16"
+"e hex.cols = 15"
 "e hex.comments = true"
 "e hex.compact = false"
 "e hex.depth = 5"
@@ -562,7 +562,7 @@
 "e scr.flush = false"
 "e scr.fps = false"
 "e scr.gadgets = true"
-"e scr.highlight = "
+"e scr.highlight = 010d"
 "e scr.highlight.grep = false"
 "e scr.hist.block = true"
 "e scr.hist.filter = true"
@@ -571,7 +571,7 @@
 "e scr.html = false"
 "e scr.interactive = true"
 "e scr.last = true"
-"e scr.layout = "
+"e scr.layout = dis_hex"
 "e scr.linesleep = 0"
 "e scr.loopnl = false"
 "e scr.maxpage = 0x00019000"
@@ -632,7 +632,7 @@
 "e search.verbose = false"
 "e stack.annotated = false"
 "e stack.bytes = true"
-"e stack.delta = 0xffffffffffffffc0"
+"e stack.delta = 32"
 "e stack.reg = SP"
 "e stack.size = 64"
 "e str.escbslash = false"
@@ -664,28 +664,23 @@ o "./SIMICSX58IA32X64_1_5_0_r.fd" 0xffffffffffffffff r-x
 onnu malloc://983040 rw-
 omu 3 0x00000000 0x01000000 0x00000000 r-x
 omu 4 0x10000000 0x000f0000 0x00000000 rw- mem.0x10000000_0xf0000
-tcc ax fastcall (ax, dx, bx, cx, stack);
-tcc ax ms (ax, dx, stack);
-tcc bx msm (ax, dx, bx, stack);
-tcc ax reg (ax, bx, cx, dx);
-tcc ax turboc (ax, dx, bx, stack);
-tcc si watcom (ax, dx, bx, cx, stack);
+tcc rax amd64 (rdi, rsi, rdx, rcx, r8, r9, xmm0, xmm1, xmm2, xmm3, xmm4);
+tcc rax amd64syscall (rdi, rsi, rdx, r10, r8, r9);
+tcc rax:rdx dlang (rdi, rsi, rdx, rcx, r8d, r9d, stack);
+tcc rax ms (rcx, rdx, r8, r9, stack);
+tcc rax p9 (rbp, stack);
+tcc rax r13.swift (rdi, rsi, rdx, rcx, r8, r9, xmm0, xmm1, xmm2, xmm3, xmm4);
+tcc rax reg (rdi, rsi, rdx, rcx);
 # functions
 fs functions
 "f fcn.00000000 0 0x00000000"
 "af+ 0x00000000 fcn.00000000 f n"
 afB 64 @ 0x00000000
-s 0x0
-"afc fastcall"
-s-
 afS 0 @ 0x0
 "f fcn.001345d4 8 0x001345d4"
 "af+ 0x001345d4 fcn.001345d4 f n"
 afb+ 0x001345d4 0x001345d4 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x001345d4
-s 0x1345d4
-"afc fastcall"
-s-
 afS 0 @ 0x1345d4
 "f sub.int.000b4c16_b4c16 156 0x000b4c16"
 "af+ 0x000b4c16 sub.int.000b4c16_b4c16 f n"
@@ -695,9 +690,6 @@ afb+ 0x000b4c16 0x000b4c4b 3 0x000b4cab 0x000b4c4e
 afb+ 0x000b4c16 0x000b4c4e 4 0xffffffffffffffff 0xffffffffffffffff
 afb+ 0x000b4c16 0x000b4cab 7 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x000b4c16
-s 0xb4c16
-"afc fastcall"
-s-
 s 0xb4c16
 'afvb 23 arg_17h int64_t
 s-
@@ -721,9 +713,6 @@ afb+ 0x00ff0300 0x00ff03a0 7 0x00ff03ac 0xffffffffffffffff
 afb+ 0x00ff0300 0x00ff03a7 5 0x00ff03ac 0xffffffffffffffff
 afb+ 0x00ff0300 0x00ff03ac 10 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0300
-s 0xff0300
-"afc fastcall"
-s-
 s 0xff0300
 'afvb 8 arg_8h int64_t
 'afvb 12 arg_ch int64_t
@@ -755,9 +744,6 @@ afS 60 @ 0xff0300
 "af+ 0x00ff062e fcn.00ff062e f n"
 afb+ 0x00ff062e 0x00ff062e 3 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff062e
-s 0xff062e
-"afc fastcall"
-s-
 afS 0 @ 0xff062e
 "f fcn.00ff0678 139 0x00ff0678"
 "af+ 0x00ff0678 fcn.00ff0678 f n"
@@ -775,9 +761,6 @@ afb+ 0x00ff0678 0x00ff06ea 14 0x00ff06d3 0xffffffffffffffff
 afb+ 0x00ff0678 0x00ff06f8 3 0x00ff06fb 0xffffffffffffffff
 afb+ 0x00ff0678 0x00ff06fb 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0678
-s 0xff0678
-"afc fastcall"
-s-
 s 0xff0678
 'afvb -16 var_10h int64_t
 'afvb -20 var_14h int64_t
@@ -808,9 +791,6 @@ afb+ 0x00ff03b6 0x00ff043b 26 0x00ff045c 0x00ff0455
 afb+ 0x00ff03b6 0x00ff0455 7 0x00ff03f4 0x00ff045c
 afb+ 0x00ff03b6 0x00ff045c 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff03b6
-s 0xff03b6
-"afc fastcall"
-s-
 s 0xff03b6
 'afvb 8 arg_8h int64_t
 'afvb -12 var_ch int64_t
@@ -845,9 +825,6 @@ afb+ 0x00ff04e8 0x00ff04e8 12 0x00ff0524 0x00ff04f4
 afb+ 0x00ff04e8 0x00ff04f4 48 0x00ff0524 0xffffffffffffffff
 afb+ 0x00ff04e8 0x00ff0524 9 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04e8
-s 0xff04e8
-"afc fastcall"
-s-
 axc 0xff0524 0xff04f2
 axd 0x7000 0xff04f6
 axd 0x7000 0xff0524
@@ -856,9 +833,6 @@ afS 0 @ 0xff04e8
 "af+ 0x00ff0464 fcn.00ff0464 f n"
 afb+ 0x00ff0464 0x00ff0464 47 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0464
-s 0xff0464
-"afc fastcall"
-s-
 s 0xff0464
 'afvb 8 arg_8h int64_t
 'afvb 12 arg_ch int64_t
@@ -876,9 +850,6 @@ afb+ 0x00ff193f 0x00ff293a 12 0x00ff294d 0xffffffffffffffff
 afb+ 0x00ff193f 0x00ff2946 7 0x00ff294d 0xffffffffffffffff
 afb+ 0x00ff193f 0x00ff294d 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff193f
-s 0xff193f
-"afc fastcall"
-s-
 s 0xff193f
 'afvb 8 arg_8h int64_t
 'afvb 12 arg_ch uint32_t
@@ -904,9 +875,6 @@ afb+ 0x00ff0493 0x00ff0493 17 0x00ff04a4 0xffffffffffffffff
 afb+ 0x00ff0493 0x00ff04a1 3 0x00ff04a4 0xffffffffffffffff
 afb+ 0x00ff0493 0x00ff04a4 13 0x00ff04a1 0xffffffffffffffff
 afB 64 @ 0x00ff0493
-s 0xff0493
-"afc fastcall"
-s-
 s 0xff0493
 'afvb -4 var_4h int64_t
 s-
@@ -1018,9 +986,6 @@ afb+ 0x00ff29d0 0x00ff29f5 10 0xffffffffffffffff 0xffffffffffffffff
 afb+ 0x00ff29d0 0x00ff2a05 21 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff29d0
 s 0xff29d0
-"afc fastcall"
-s-
-s 0xff29d0
 'afvs -4 var_4h int64_t
 s-
 axC 0xff28ed 0xff29d4
@@ -1067,9 +1032,6 @@ afb+ 0x00ff2960 0x00ff297f 5 0x00ff2986 0x00ff2984
 afb+ 0x00ff2960 0x00ff2984 2 0x00ff2986 0xffffffffffffffff
 afb+ 0x00ff2960 0x00ff2986 6 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2960
-s 0xff2960
-"afc fastcall"
-s-
 s 0xff2960
 'afvb 12 arg_ch int64_t
 'afvb 16 arg_10h int64_t
@@ -1119,9 +1081,6 @@ afb+ 0x00ff2a20 0x00ff2a20 15 0x00ff2a35 0x00ff2a2f
 afb+ 0x00ff2a20 0x00ff2a2f 6 0x00ff2a35 0xffffffffffffffff
 afb+ 0x00ff2a20 0x00ff2a35 6 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2a20
-s 0xff2a20
-"afc fastcall"
-s-
 s 0xff2a20
 'afvs 4 arg_4h int64_t
 'afvs 8 arg_8h int64_t
@@ -1634,9 +1593,6 @@ afb+ 0x00ff0703 0x00ff1309 2 0x00ff130b 0xffffffffffffffff
 afb+ 0x00ff0703 0x00ff130b 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0703
 s 0xff0703
-"afc fastcall"
-s-
-s 0xff0703
 'afvb 1 var_1h int16_t
 'afvb 2 arg_2h int16_t
 'afvb 16 arg_10h int16_t
@@ -1883,9 +1839,6 @@ afb+ 0x00ff2a40 0x00ff2a40 23 0x00ff2a69 0x00ff2a57
 afb+ 0x00ff2a40 0x00ff2a57 18 0x00ff2a69 0xffffffffffffffff
 afb+ 0x00ff2a40 0x00ff2a69 2 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2a40
-s 0xff2a40
-"afc fastcall"
-s-
 axc 0xff2a69 0xff2a55
 axd 0x200 0xff2a5a
 afS 8 @ 0xff2a40
@@ -1893,26 +1846,17 @@ afS 8 @ 0xff2a40
 "af+ 0x00ff04b3 fcn.00ff04b3 f n"
 afb+ 0x00ff04b3 0x00ff04b3 11 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04b3
-s 0xff04b3
-"afc fastcall"
-s-
 afS 8 @ 0xff04b3
 "f fcn.00ff1938 7 0x00ff1938"
 "af+ 0x00ff1938 fcn.00ff1938 f n"
 afb+ 0x00ff1938 0x00ff1938 7 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff1938
-s 0xff1938
-"afc fastcall"
-s-
 axd 0xcf8 0xff1938
 afS 0 @ 0xff1938
 "f fcn.00ff04dc 12 0x00ff04dc"
 "af+ 0x00ff04dc fcn.00ff04dc f n"
 afb+ 0x00ff04dc 0x00ff04dc 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04dc
-s 0xff04dc
-"afc fastcall"
-s-
 s 0xff04dc
 'afvb 8 arg_8h int64_t
 'afvb 12 arg_ch int64_t
@@ -1926,9 +1870,6 @@ afb+ 0x00ff04be 0x00ff04cd 1 0x00ff04ce 0xffffffffffffffff
 afb+ 0x00ff04be 0x00ff04ce 2 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04be
 s 0xff04be
-"afc fastcall"
-s-
-s 0xff04be
 'afvb 8 arg_8h int64_t
 s-
 axc 0xff04cd 0xff04c8
@@ -1939,9 +1880,6 @@ afS 8 @ 0xff04be
 "af+ 0x00ff04d0 fcn.00ff04d0 f n"
 afb+ 0x00ff04d0 0x00ff04d0 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04d0
-s 0xff04d0
-"afc fastcall"
-s-
 s 0xff04d0
 'afvb 8 arg_8h int64_t
 'afvb 12 arg_ch int64_t
@@ -2308,27 +2246,43 @@ afS 472 @ 0xff2589
 
 # registers
 fs+registers
-f ip 2 0x00000000
-f ax 2 0x00000000
-f bx 2 0x00000000
-f cx 2 0x00000000
-f dx 2 0x00000000
-f sp 2 0x00000000
-f bp 2 0x00000000
-f si 2 0x00000000
-f di 2 0x00000000
-f flags 2 0x00000000
+f rax 8 0x00000000
+f rbx 8 0x00000000
+f rcx 8 0x00000000
+f rdx 8 0x00000000
+f rsi 8 0x00000000
+f rdi 8 0x00000000
+f r8 8 0x00000000
+f r9 8 0x00000000
+f r10 8 0x00000000
+f r11 8 0x00000000
+f r12 8 0x00000000
+f r13 8 0x00000000
+f r14 8 0x00000000
+f r15 8 0x00000000
+f rip 8 0x00000000
+f rbp 8 0x00000000
+f rflags 8 0x00000000
+f rsp 8 0x00000000
 fs-
-aer ip = 0x00000000
-aer ax = 0x00000000
-aer bx = 0x00000000
-aer cx = 0x00000000
-aer dx = 0x00000000
-aer sp = 0x00000000
-aer bp = 0x00000000
-aer si = 0x00000000
-aer di = 0x00000000
-aer flags = 0x00000000
+aer rax = 0x00000000
+aer rbx = 0x00000000
+aer rcx = 0x00000000
+aer rdx = 0x00000000
+aer rsi = 0x00000000
+aer rdi = 0x00000000
+aer r8 = 0x00000000
+aer r9 = 0x00000000
+aer r10 = 0x00000000
+aer r11 = 0x00000000
+aer r12 = 0x00000000
+aer r13 = 0x00000000
+aer r14 = 0x00000000
+aer r15 = 0x00000000
+aer rip = 0x00000000
+aer rbp = 0x00000000
+aer rflags = 0x00000000
+aer rsp = 0x00000000
 # flags
 fs functions
 f fcn.00000000 28 0x00000000 
@@ -2400,9 +2354,6 @@ f fcn.00ff2a40 43 0x00ff2a40
 fs registers
 f _enter16_32bit 1 0x00ffff3c 
 f _main32 1 0x00ffff5b 
-fs *
-f _gdt 1 0x00ffff74 
-fs registers
 f _main16 1 0x00ffffc0 
 fs *
 f _reset_vector 1 0x00fffff0 
@@ -2452,8 +2403,12 @@ Ct arg4 @ 0x00ff2969
 Ct arg3 @ 0x00ff2984
 Ct arg3 @ 0x00ff2a51
 CCu base64:Z2R0 @ 0x00ffff42
+CCu base64:Q1IwIFBFLCBNUCwgTkU= @ 0x00ffff4a
 CCu base64:X21haW4zMg== @ 0x00ffff53
 CCu base64:X21haW4zMg== @ 0x00ffff57
+CCu base64:Vg== @ 0x00ffffec
+CCu base64:VA== @ 0x00ffffed
+CCu base64:Rg== @ 0x00ffffee
 axd 0xfe 0x51
 axc 0x11 0x57
 axc 0x7fffa 0x80060
@@ -76896,6 +76851,7 @@ ahb 32 @ 0xffff5b
 ahb 16 @ 0xffffb8
 # types
 "tk *aligned_alloc=func"
+"tk CR0_FLAGS=enum"
 "tk FILE=type"
 "tk _Exit=func"
 "tk __assert_fail=func"
@@ -76979,6 +76935,29 @@ ahb 16 @ 0xffffb8
 "tk difftime=func"
 "tk div=func"
 "tk double=type"
+"tk enum.CR0_FLAGS=CR0_PE,CR0_MP,CR0_EM,CR0_TS,CR0_ET,CR0_NE,CR0_WP,CR0_AM,CR0_NW,CR0_CD,CR0_PG"
+"tk enum.CR0_FLAGS.0x0=CR0_PE"
+"tk enum.CR0_FLAGS.0x1=CR0_MP"
+"tk enum.CR0_FLAGS.0x10=CR0_WP"
+"tk enum.CR0_FLAGS.0x12=CR0_AM"
+"tk enum.CR0_FLAGS.0x1d=CR0_NW"
+"tk enum.CR0_FLAGS.0x1e=CR0_CD"
+"tk enum.CR0_FLAGS.0x1f=CR0_PG"
+"tk enum.CR0_FLAGS.0x2=CR0_EM"
+"tk enum.CR0_FLAGS.0x3=CR0_TS"
+"tk enum.CR0_FLAGS.0x4=CR0_ET"
+"tk enum.CR0_FLAGS.0x5=CR0_NE"
+"tk enum.CR0_FLAGS.CR0_AM=0x12"
+"tk enum.CR0_FLAGS.CR0_CD=0x1e"
+"tk enum.CR0_FLAGS.CR0_EM=0x2"
+"tk enum.CR0_FLAGS.CR0_ET=0x4"
+"tk enum.CR0_FLAGS.CR0_MP=0x1"
+"tk enum.CR0_FLAGS.CR0_NE=0x5"
+"tk enum.CR0_FLAGS.CR0_NW=0x1d"
+"tk enum.CR0_FLAGS.CR0_PE=0x0"
+"tk enum.CR0_FLAGS.CR0_PG=0x1f"
+"tk enum.CR0_FLAGS.CR0_TS=0x3"
+"tk enum.CR0_FLAGS.CR0_WP=0x10"
 "tk erf=func"
 "tk erfc=func"
 "tk erfcf=func"
@@ -79771,4 +79750,4 @@ ahb 16 @ 0xffffb8
 # macros
 # aliases
 # seek
-s 0x00ffff27
+s 0x00ffff63
