@@ -7,11 +7,12 @@ struct gdt32 {
 };
 
 struct seg_dsc {
-	uint16_t base_0;
-	uint8_t  limit_0;
-	uint8_t  t:1;
-	uint8_t  a:2;
-	uint8_t  b:1;
+	uint16_t limit0;		// Segment Limit
+	uint16_t base0;			// Segment Base Address
+	uint8_t  base1;			// Segment Base Address
+	uint8_t  type_s_dpl_p;		// Type:4, S:1, DPL:2, P:1
+	uint8_t	 limit1_avl_l_db_g; 	// Segment Limit:4, AVL:2, L:1, D/B:1, G:1
+	uint8_t	 base2;			// Segment Base Address
 };
 
 enum CR0_FLAGS {
