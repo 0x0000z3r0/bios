@@ -2,6 +2,7 @@
 # eval
 "e anal.a2f = false"
 "e anal.arch = x86"
+"e anal.armthumb = false"
 "e anal.autoname = false"
 "e anal.bb.maxsize = 512K"
 "e anal.brokenrefs = false"
@@ -12,17 +13,11 @@
 "e anal.datarefs = false"
 "e anal.delay = true"
 "e anal.depth = 128"
-"e anal.emu = true"
-"e anal.emumem = false"
 "e anal.esil = false"
 "e anal.fcnprefix = fcn"
-"e anal.fixed.arch = false"
-"e anal.fixed.bits = false"
-"e anal.fixed.gp = true"
-"e anal.fixed.thumb = true"
-"e anal.flagends = true"
 "e anal.from = 0xffffffffffffffff"
 "e anal.gp = 0"
+"e anal.gpfixed = true"
 "e anal.graph_depth = 256"
 "e anal.hasnext = false"
 "e anal.hpskip = false"
@@ -78,7 +73,7 @@
 "e asm.arch = x86"
 "e asm.assembler = "
 "e asm.bbmiddle = true"
-"e asm.bits = 64"
+"e asm.bits = 16"
 "e asm.bytes = true"
 "e asm.bytes.align = false"
 "e asm.bytes.asbits = false"
@@ -88,7 +83,7 @@
 "e asm.bytes.space = false"
 "e asm.capitalize = false"
 "e asm.cmt.calls = true"
-"e asm.cmt.col = 71"
+"e asm.cmt.col = 69"
 "e asm.cmt.esil = false"
 "e asm.cmt.flgrefs = true"
 "e asm.cmt.fold = false"
@@ -218,7 +213,6 @@
 "e bin.demangle = true"
 "e bin.demangle.libs = false"
 "e bin.demangle.trylib = false"
-"e bin.demangle.usecmd = false"
 "e bin.filter = true"
 "e bin.force = "
 "e bin.hashlimit = 10M"
@@ -268,6 +262,7 @@
 "e cmd.bbgraph = "
 "e cmd.bp = "
 "e cmd.cprompt = "
+"e cmd.demangle = false"
 "e cmd.depth = 10"
 "e cmd.esil.intr = "
 "e cmd.esil.ioer = "
@@ -340,7 +335,6 @@
 "e dbg.threads = false"
 "e dbg.trace = false"
 "e dbg.trace.continue = true"
-"e dbg.trace.eval = true"
 "e dbg.trace.inrange = false"
 "e dbg.trace.libs = true"
 "e dbg.trace.tag = 0"
@@ -525,7 +519,6 @@
 "e prj.alwasyprompt = false"
 "e prj.files = false"
 "e prj.gpg = false"
-"e prj.history = false"
 "e prj.name = r2"
 "e prj.sandbox = false"
 "e prj.vc = true"
@@ -562,7 +555,7 @@
 "e scr.flush = false"
 "e scr.fps = false"
 "e scr.gadgets = true"
-"e scr.highlight = 010d"
+"e scr.highlight = ff000"
 "e scr.highlight.grep = false"
 "e scr.hist.block = true"
 "e scr.hist.filter = true"
@@ -643,7 +636,6 @@
 "e zign.bytes = true"
 "e zign.diff.bthresh = 1.0"
 "e zign.diff.gthresh = 1.0"
-"e zign.dups = false"
 "e zign.graph = true"
 "e zign.hash = true"
 "e zign.mangled = false"
@@ -664,23 +656,28 @@ o "./SIMICSX58IA32X64_1_5_0_r.fd" 0xffffffffffffffff r-x
 onnu malloc://983040 rw-
 omu 3 0x00000000 0x01000000 0x00000000 r-x
 omu 4 0x10000000 0x000f0000 0x00000000 rw- mem.0x10000000_0xf0000
-tcc rax amd64 (rdi, rsi, rdx, rcx, r8, r9, xmm0, xmm1, xmm2, xmm3, xmm4);
-tcc rax amd64syscall (rdi, rsi, rdx, r10, r8, r9);
-tcc rax:rdx dlang (rdi, rsi, rdx, rcx, r8d, r9d, stack);
-tcc rax ms (rcx, rdx, r8, r9, stack);
-tcc rax p9 (rbp, stack);
-tcc rax r13.swift (rdi, rsi, rdx, rcx, r8, r9, xmm0, xmm1, xmm2, xmm3, xmm4);
-tcc rax reg (rdi, rsi, rdx, rcx);
+tcc ax fastcall (ax, dx, bx, cx, stack);
+tcc ax ms (ax, dx, stack);
+tcc bx msm (ax, dx, bx, stack);
+tcc ax reg (ax, bx, cx, dx);
+tcc ax turboc (ax, dx, bx, stack);
+tcc si watcom (ax, dx, bx, cx, stack);
 # functions
 fs functions
 "f fcn.00000000 0 0x00000000"
 "af+ 0x00000000 fcn.00000000 f n"
-afB 64 @ 0x00000000
+afB 32 @ 0x00000000
+s 0x0
+"afc cdecl"
+s-
 afS 0 @ 0x0
 "f fcn.001345d4 8 0x001345d4"
 "af+ 0x001345d4 fcn.001345d4 f n"
 afb+ 0x001345d4 0x001345d4 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x001345d4
+s 0x1345d4
+"afc cdecl"
+s-
 afS 0 @ 0x1345d4
 "f sub.int.000b4c16_b4c16 156 0x000b4c16"
 "af+ 0x000b4c16 sub.int.000b4c16_b4c16 f n"
@@ -691,7 +688,10 @@ afb+ 0x000b4c16 0x000b4c4e 4 0xffffffffffffffff 0xffffffffffffffff
 afb+ 0x000b4c16 0x000b4cab 7 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x000b4c16
 s 0xb4c16
-'afvb 23 arg_17h int64_t
+"afc cdecl"
+s-
+s 0xb4c16
+"afvb 23 arg_17h int64_t"
 s-
 axc 0xb4c4b 0xb4c1a
 axc 0xb4cab 0xb4c4c
@@ -714,13 +714,16 @@ afb+ 0x00ff0300 0x00ff03a7 5 0x00ff03ac 0xffffffffffffffff
 afb+ 0x00ff0300 0x00ff03ac 10 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0300
 s 0xff0300
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
-'afvb -20 var_14h uint32_t
-'afvb -24 var_18h uint32_t
-'afvb -28 var_1ch int64_t
-'afvb -32 var_20h uint32_t
-'afvb -33 var_21h int64_t
+"afc cdecl"
+s-
+s 0xff0300
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch int64_t"
+"afvb -20 var_14h uint32_t"
+"afvb -24 var_18h uint32_t"
+"afvb -28 var_1ch int64_t"
+"afvb -32 var_20h uint32_t"
+"afvb -33 var_21h int64_t"
 s-
 axd 0x1c 0xff0308
 axc 0xff0337 0xff032d
@@ -744,6 +747,9 @@ afS 60 @ 0xff0300
 "af+ 0x00ff062e fcn.00ff062e f n"
 afb+ 0x00ff062e 0x00ff062e 3 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff062e
+s 0xff062e
+"afc cdecl"
+s-
 afS 0 @ 0xff062e
 "f fcn.00ff0678 139 0x00ff0678"
 "af+ 0x00ff0678 fcn.00ff0678 f n"
@@ -762,10 +768,13 @@ afb+ 0x00ff0678 0x00ff06f8 3 0x00ff06fb 0xffffffffffffffff
 afb+ 0x00ff0678 0x00ff06fb 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0678
 s 0xff0678
-'afvb -16 var_10h int64_t
-'afvb -20 var_14h int64_t
-'afvb -24 var_18h int64_t
-'afvb -28 var_1ch int64_t
+"afc cdecl"
+s-
+s 0xff0678
+"afvb -16 var_10h int64_t"
+"afvb -20 var_14h int64_t"
+"afvb -24 var_18h int64_t"
+"afvb -28 var_1ch int64_t"
 s-
 axd 0x10 0xff067e
 axd 0x110 0xff0687
@@ -776,6 +785,8 @@ axc 0xff06c7 0xff06bf
 axc 0xff06f8 0xff06d5
 axc 0xff06ea 0xff06e6
 axc 0xff06d3 0xff06f5
+axc 0x6d3 0xff06f6
+axc 0xff06d3 0xff06f6
 axd 0x10 0xff06fb
 afS 48 @ 0xff0678
 "f fcn.00ff03b6 174 0x00ff03b6"
@@ -792,14 +803,17 @@ afb+ 0x00ff03b6 0x00ff0455 7 0x00ff03f4 0x00ff045c
 afb+ 0x00ff03b6 0x00ff045c 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff03b6
 s 0xff03b6
-'afvb 8 arg_8h int64_t
-'afvb -12 var_ch int64_t
-'afvb -20 var_14h int64_t
-'afvb -24 var_18h int64_t
-'afvb -28 var_1ch int64_t
-'afvb -32 var_20h uint32_t
-'afvb -33 var_21h int64_t
-'afvb -34 var_22h int64_t
+"afc cdecl"
+s-
+s 0xff03b6
+"afvb 8 arg_8h int64_t"
+"afvb -12 var_ch int64_t"
+"afvb -20 var_14h int64_t"
+"afvb -24 var_18h int64_t"
+"afvb -28 var_1ch int64_t"
+"afvb -32 var_20h uint32_t"
+"afvb -33 var_21h int64_t"
+"afvb -34 var_22h int64_t"
 s-
 axd 0x1c 0xff03bc
 axc 0xff03d8 0xff03cc
@@ -825,6 +839,9 @@ afb+ 0x00ff04e8 0x00ff04e8 12 0x00ff0524 0x00ff04f4
 afb+ 0x00ff04e8 0x00ff04f4 48 0x00ff0524 0xffffffffffffffff
 afb+ 0x00ff04e8 0x00ff0524 9 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04e8
+s 0xff04e8
+"afc cdecl"
+s-
 axc 0xff0524 0xff04f2
 axd 0x7000 0xff04f6
 axd 0x7000 0xff0524
@@ -834,8 +851,11 @@ afS 0 @ 0xff04e8
 afb+ 0x00ff0464 0x00ff0464 47 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0464
 s 0xff0464
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
+"afc cdecl"
+s-
+s 0xff0464
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch int64_t"
 s-
 afS 16 @ 0xff0464
 "f fcn.00ff193f 4122 0x00ff193f"
@@ -851,14 +871,17 @@ afb+ 0x00ff193f 0x00ff2946 7 0x00ff294d 0xffffffffffffffff
 afb+ 0x00ff193f 0x00ff294d 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff193f
 s 0xff193f
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch uint32_t
-'afvb 16 arg_10h int64_t
+"afc cdecl"
 s-
 s 0xff193f
-'afvs 20 arg_14h int64_t
-'afvs -4 var_ch int64_t
-'afvs 0 arg_sp_10h int64_t
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch uint32_t"
+"afvb 16 arg_10h int64_t"
+s-
+s 0xff193f
+"afvs 16 arg_sp_10h int32_t"
+"afvs 20 arg_14h int64_t"
+"afvs -4 var_ch int64_t"
 s-
 axc 0xff1957 0xff194b
 axc 0xff1957 0xff194f
@@ -871,17 +894,19 @@ axc 0xff294d 0xff2944
 afS 16 @ 0xff193f
 "f fcn.00ff0493 30 0x00ff0493"
 "af+ 0x00ff0493 fcn.00ff0493 f n"
-afb+ 0x00ff0493 0x00ff0493 17 0x00ff04a4 0xffffffffffffffff
+afb+ 0x00ff0493 0x00ff0493 14 0x00ff04a1 0xffffffffffffffff
 afb+ 0x00ff0493 0x00ff04a1 3 0x00ff04a4 0xffffffffffffffff
 afb+ 0x00ff0493 0x00ff04a4 13 0x00ff04a1 0xffffffffffffffff
 afB 64 @ 0x00ff0493
 s 0xff0493
-'afvb -4 var_4h int64_t
+"afc cdecl"
+s-
+s 0xff0493
+"afvb -4 var_4h int64_t"
 s-
 axd 0x10 0xff0496
 axd 0x2ab8 0xff0499
 axd 0x2ab8 0xff04a4
-axc 0xff04a1 0xff04af
 afS 32 @ 0xff0493
 "f fcn.00ff2900 29 0x00ff2900"
 "af+ 0x00ff2900 fcn.00ff2900 f n"
@@ -891,8 +916,8 @@ s 0xff2900
 "afc amd64"
 s-
 s 0xff2900
-'afvs 0 arg_8h int64_t
-'afvs 4 arg_ch int64_t
+"afvs 0 arg_8h int64_t"
+"afvs 4 arg_ch int64_t"
 s-
 afS 16 @ 0xff2900
 "f fcn.00ff052d 257 0x00ff052d"
@@ -931,10 +956,10 @@ s 0xff052d
 "afc amd64"
 s-
 s 0xff052d
-'afvb 8 arg_8h int64_t
-'afvb 16 arg_10h int16_t
-'afvb 20 arg_14h int16_t
-'afvb 24 arg_18h int16_t
+"afvb 8 arg_8h int64_t"
+"afvb 16 arg_10h int16_t"
+"afvb 20 arg_14h int16_t"
+"afvb 24 arg_18h int16_t"
 s-
 axd 0x5a4d 0xff0538
 axc 0xff0545 0xff053d
@@ -986,10 +1011,13 @@ afb+ 0x00ff29d0 0x00ff29f5 10 0xffffffffffffffff 0xffffffffffffffff
 afb+ 0x00ff29d0 0x00ff2a05 21 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff29d0
 s 0xff29d0
-'afvs -4 var_4h int64_t
+"afc cdecl"
+s-
+s 0xff29d0
+"afvs 0 arg_4h int32_t"
+"afvs -4 var_4h int64_t"
 s-
 axC 0xff28ed 0xff29d4
-axc 0xff2a05 0xff29f3
 afS 8 @ 0xff29d0
 "f fcn.00ff28ed 1 0x00ff28ed"
 "af+ 0x00ff28ed fcn.00ff28ed f n"
@@ -1009,15 +1037,14 @@ s 0xff2990
 "afc amd64"
 s-
 s 0xff2990
-'afvb 8 arg_8h int16_t
-'afvb 12 arg_ch int16_t
-'afvb 16 arg_10h int16_t
+"afvb 8 arg_8h int16_t"
+"afvb 12 arg_ch int16_t"
+"afvb 16 arg_10h int16_t"
 s-
 s 0xff2990
-'afvs 4 arg_4h int64_t
+"afvs 4 arg_4h int64_t"
 s-
 axd 0x2a6c 0xff2990
-axc 0xff29b8 0xff29a0
 axd 0x14 0xff29c9
 afS 0 @ 0xff2990
 "f fcn.00ff2960 44 0x00ff2960"
@@ -1033,11 +1060,14 @@ afb+ 0x00ff2960 0x00ff2984 2 0x00ff2986 0xffffffffffffffff
 afb+ 0x00ff2960 0x00ff2986 6 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2960
 s 0xff2960
-'afvb 12 arg_ch int64_t
-'afvb 16 arg_10h int64_t
-'afvb 20 arg_14h int64_t
-'afvb 24 arg_18h int64_t
-'afvb 28 arg_1ch int64_t
+"afc cdecl"
+s-
+s 0xff2960
+"afvb 12 arg_ch int64_t"
+"afvb 16 arg_10h int64_t"
+"afvb 20 arg_14h int64_t"
+"afvb 24 arg_18h int64_t"
+"afvb 28 arg_1ch int64_t"
 s-
 axc 0xff2971 0xff296d
 axc 0xff2978 0xff2974
@@ -1052,7 +1082,7 @@ s 0xff1efc
 "afc amd64"
 s-
 s 0xff1efc
-'afvb -12 var_ch int64_t
+"afvb -12 var_ch int64_t"
 s-
 axd 0x0 0xff1f02
 axd 0x0 0xff1f07
@@ -1082,9 +1112,12 @@ afb+ 0x00ff2a20 0x00ff2a2f 6 0x00ff2a35 0xffffffffffffffff
 afb+ 0x00ff2a20 0x00ff2a35 6 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2a20
 s 0xff2a20
-'afvs 4 arg_4h int64_t
-'afvs 8 arg_8h int64_t
-'afvs 12 arg_ch int64_t
+"afc cdecl"
+s-
+s 0xff2a20
+"afvs 4 arg_4h int64_t"
+"afvs 8 arg_8h int64_t"
+"afvs 12 arg_ch int64_t"
 s-
 axd 0x20 0xff2a2a
 axc 0xff2a35 0xff2a2d
@@ -1118,7 +1151,7 @@ s 0xff1f56
 "afc amd64"
 s-
 s 0xff1f56
-'afvb -4 var_4h int64_t
+"afvb -4 var_4h int64_t"
 s-
 axC 0xff1efc 0xff1f5b
 axc 0xff1f90 0xff1f69
@@ -1137,7 +1170,7 @@ s 0xff1ffe
 "afc amd64"
 s-
 s 0xff1ffe
-'afvb -12 var_ch int64_t
+"afvb -12 var_ch int64_t"
 s-
 axd 0xc 0xff2008
 axd 0x8 0xff2015
@@ -1264,28 +1297,28 @@ s 0xff1313
 "afc amd64"
 s-
 s 0xff1313
-'afvb 1 arg_1h int16_t
-'afvb 12 arg_ch int16_t
-'afvb 16 arg_10h int16_t
-'afvb 20 arg_14h int16_t
-'afvb 24 arg_18h int16_t
-'afvb 32 arg_20h int16_t
-'afvb 36 arg_24h int16_t
-'afvb 40 arg_28h int16_t
-'afvb 44 arg_2ch int16_t
-'afvb 48 arg_30h int16_t
-'afvb 64 arg_40h int16_t
-'afvb -16 var_10h int64_t
-'afvb -20 var_14h int64_t
-'afvb -24 var_18h int64_t
-'afvb -28 var_1ch uint32_t
-'afvb -32 var_20h int64_t
-'afvb -36 var_24h int64_t
-'afvb -40 var_28h uint32_t
-'afvb -44 var_2ch uint32_t
-'afvb -48 var_30h int64_t
-'afvb -4003 var_fa3h int16_t
-'afvb -7075 var_1ba3h int16_t
+"afvb 1 arg_1h int16_t"
+"afvb 12 arg_ch int16_t"
+"afvb 16 arg_10h int16_t"
+"afvb 20 arg_14h int16_t"
+"afvb 24 arg_18h int16_t"
+"afvb 32 arg_20h int16_t"
+"afvb 36 arg_24h int16_t"
+"afvb 40 arg_28h int16_t"
+"afvb 44 arg_2ch int16_t"
+"afvb 48 arg_30h int16_t"
+"afvb 64 arg_40h int16_t"
+"afvb -16 var_10h int64_t"
+"afvb -20 var_14h int64_t"
+"afvb -24 var_18h int64_t"
+"afvb -28 var_1ch uint32_t"
+"afvb -32 var_20h int64_t"
+"afvb -36 var_24h int64_t"
+"afvb -40 var_28h uint32_t"
+"afvb -44 var_2ch uint32_t"
+"afvb -48 var_30h int64_t"
+"afvb -4003 var_fa3h int16_t"
+"afvb -7075 var_1ba3h int16_t"
 s-
 axd 0x24 0xff1320
 axd 0xffff 0xff1358
@@ -1377,6 +1410,8 @@ axc 0xff17a8 0xff178f
 axc 0xff1928 0xff1796
 axc 0xff17c3 0xff17b7
 axc 0xff17c5 0xff17c0
+axc 0x17c5 0xff17c1
+axc 0xff17c5 0xff17c1
 axc 0xff1777 0xff17ca
 axc 0xff190e 0xff17d0
 axd 0x200 0xff17d9
@@ -1388,6 +1423,8 @@ axc 0xff182b 0xff180f
 axc 0xff1928 0xff1816
 axc 0xff1841 0xff1835
 axc 0xff1843 0xff183e
+axc 0x1843 0xff183f
+axc 0xff1843 0xff183f
 axd 0x3f 0xff1843
 axc 0xff17f5 0xff1846
 axd 0x40 0xff1848
@@ -1593,38 +1630,41 @@ afb+ 0x00ff0703 0x00ff1309 2 0x00ff130b 0xffffffffffffffff
 afb+ 0x00ff0703 0x00ff130b 8 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff0703
 s 0xff0703
-'afvb 1 var_1h int16_t
-'afvb 2 arg_2h int16_t
-'afvb 16 arg_10h int16_t
-'afvb 512 arg_200h int16_t
-'afvb -16 var_10h uint32_t
-'afvb -20 var_14h int64_t
-'afvb -24 var_18h uint32_t
-'afvb -28 var_1ch uint32_t
-'afvb -32 var_20h int64_t
-'afvb -36 var_24h uint32_t
-'afvb -40 var_28h uint32_t
-'afvb -44 var_2ch uint32_t
-'afvb -48 var_30h uint32_t
-'afvb -52 var_34h int64_t
-'afvb -56 var_38h uint32_t
-'afvb -60 var_3ch int64_t
-'afvb -64 var_40h uint32_t
-'afvb -68 var_44h uint32_t
-'afvb -72 var_48h uint32_t
-'afvb -76 var_4ch uint32_t
-'afvb -80 var_50h int64_t
-'afvb -84 var_54h int64_t
-'afvb -88 var_58h int64_t
-'afvb -92 var_5ch uint32_t
-'afvb -96 var_60h int64_t
-'afvb -100 var_64h int64_t
-'afvb -104 var_68h int64_t
-'afvb -108 var_6ch int64_t
-'afvb -112 var_70h uint32_t
-'afvb -119 var_77h int16_t
-'afvb -120 var_78h int16_t
-'afvb -8075 var_1f8bh int16_t
+"afc cdecl"
+s-
+s 0xff0703
+"afvb 16 arg_10h int16_t"
+"afvb 512 arg_200h int16_t"
+"afvb 2 arg_2h int16_t"
+"afvb 1 var_1h int16_t"
+"afvb -16 var_10h uint32_t"
+"afvb -20 var_14h int64_t"
+"afvb -24 var_18h uint32_t"
+"afvb -28 var_1ch uint32_t"
+"afvb -32 var_20h int64_t"
+"afvb -36 var_24h uint32_t"
+"afvb -40 var_28h uint32_t"
+"afvb -44 var_2ch uint32_t"
+"afvb -48 var_30h uint32_t"
+"afvb -52 var_34h int64_t"
+"afvb -56 var_38h uint32_t"
+"afvb -60 var_3ch int64_t"
+"afvb -64 var_40h uint32_t"
+"afvb -68 var_44h uint32_t"
+"afvb -72 var_48h uint32_t"
+"afvb -76 var_4ch uint32_t"
+"afvb -80 var_50h int64_t"
+"afvb -84 var_54h int64_t"
+"afvb -88 var_58h int64_t"
+"afvb -92 var_5ch uint32_t"
+"afvb -96 var_60h int64_t"
+"afvb -100 var_64h int64_t"
+"afvb -104 var_68h int64_t"
+"afvb -108 var_6ch int64_t"
+"afvb -112 var_70h uint32_t"
+"afvb -119 var_77h int16_t"
+"afvb -120 var_78h int16_t"
+"afvb -8075 var_1f8bh int16_t"
 s-
 axd 0x64 0xff0709
 axc 0xff0777 0xff0734
@@ -1839,6 +1879,9 @@ afb+ 0x00ff2a40 0x00ff2a40 23 0x00ff2a69 0x00ff2a57
 afb+ 0x00ff2a40 0x00ff2a57 18 0x00ff2a69 0xffffffffffffffff
 afb+ 0x00ff2a40 0x00ff2a69 2 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff2a40
+s 0xff2a40
+"afc cdecl"
+s-
 axc 0xff2a69 0xff2a55
 axd 0x200 0xff2a5a
 afS 8 @ 0xff2a40
@@ -1846,11 +1889,17 @@ afS 8 @ 0xff2a40
 "af+ 0x00ff04b3 fcn.00ff04b3 f n"
 afb+ 0x00ff04b3 0x00ff04b3 11 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04b3
+s 0xff04b3
+"afc cdecl"
+s-
 afS 8 @ 0xff04b3
 "f fcn.00ff1938 7 0x00ff1938"
 "af+ 0x00ff1938 fcn.00ff1938 f n"
 afb+ 0x00ff1938 0x00ff1938 7 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff1938
+s 0xff1938
+"afc cdecl"
+s-
 axd 0xcf8 0xff1938
 afS 0 @ 0xff1938
 "f fcn.00ff04dc 12 0x00ff04dc"
@@ -1858,8 +1907,11 @@ afS 0 @ 0xff1938
 afb+ 0x00ff04dc 0x00ff04dc 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04dc
 s 0xff04dc
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
+"afc cdecl"
+s-
+s 0xff04dc
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch int64_t"
 s-
 afS 8 @ 0xff04dc
 "f fcn.00ff04be 18 0x00ff04be"
@@ -1870,7 +1922,10 @@ afb+ 0x00ff04be 0x00ff04cd 1 0x00ff04ce 0xffffffffffffffff
 afb+ 0x00ff04be 0x00ff04ce 2 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04be
 s 0xff04be
-'afvb 8 arg_8h int64_t
+"afc cdecl"
+s-
+s 0xff04be
+"afvb 8 arg_8h int64_t"
 s-
 axc 0xff04cd 0xff04c8
 axc 0x4ce 0xff04cb
@@ -1881,8 +1936,11 @@ afS 8 @ 0xff04be
 afb+ 0x00ff04d0 0x00ff04d0 12 0xffffffffffffffff 0xffffffffffffffff
 afB 64 @ 0x00ff04d0
 s 0xff04d0
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
+"afc cdecl"
+s-
+s 0xff04d0
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch int64_t"
 s-
 afS 8 @ 0xff04d0
 "f fcn.00ff1f95 44 0x00ff1f95"
@@ -1896,7 +1954,7 @@ s 0xff1f95
 "afc amd64"
 s-
 s 0xff1f95
-'afvb 8 arg_8h int64_t
+"afvb 8 arg_8h int64_t"
 s-
 axC 0xff1f2a 0xff1f9b
 axc 0xff1faf 0xff1fa0
@@ -1917,8 +1975,8 @@ s 0xff1fc1
 "afc amd64"
 s-
 s 0xff1fc1
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
+"afvb 8 arg_8h int64_t"
+"afvb 12 arg_ch int64_t"
 s-
 axC 0xff1f2a 0xff1fc9
 axc 0xff1fdd 0xff1fce
@@ -1988,32 +2046,32 @@ s 0xff1959
 "afc amd64"
 s-
 s 0xff1959
-'afvb 1 arg_1h int16_t
-'afvb 2 arg_2h int16_t
-'afvb 4 arg_4h int16_t
-'afvb 8 arg_8h int64_t
-'afvb 60 arg_3ch int16_t
-'afvb -12 var_ch int64_t
-'afvb -84 var_54h int64_t
-'afvb -140 var_8ch uint32_t
-'afvb -144 var_90h int64_t
-'afvb -148 var_94h int64_t
-'afvb -152 var_98h int64_t
-'afvb -156 var_9ch int64_t
-'afvb -160 var_a0h int64_t
-'afvb -164 var_a4h int64_t
-'afvb -168 var_a8h int64_t
-'afvb -170 var_aah int64_t
-'afvb -188 var_bch int64_t
-'afvb -192 var_c0h int64_t
-'afvb -196 var_c4h uint32_t
-'afvb -200 var_c8h uint32_t
-'afvb -204 var_cch int64_t
-'afvb -208 var_d0h int64_t
-'afvb -212 var_d4h int64_t
-'afvb -216 var_d8h int64_t
-'afvb -220 var_dch int64_t
-'afvb -224 var_e0h int64_t
+"afvb 1 arg_1h int16_t"
+"afvb 2 arg_2h int16_t"
+"afvb 4 arg_4h int16_t"
+"afvb 8 arg_8h int64_t"
+"afvb 60 arg_3ch int16_t"
+"afvb -12 var_ch int64_t"
+"afvb -84 var_54h int64_t"
+"afvb -140 var_8ch uint32_t"
+"afvb -144 var_90h int64_t"
+"afvb -148 var_94h int64_t"
+"afvb -152 var_98h int64_t"
+"afvb -156 var_9ch int64_t"
+"afvb -160 var_a0h int64_t"
+"afvb -164 var_a4h int64_t"
+"afvb -168 var_a8h int64_t"
+"afvb -170 var_aah int64_t"
+"afvb -188 var_bch int64_t"
+"afvb -192 var_c0h int64_t"
+"afvb -196 var_c4h uint32_t"
+"afvb -200 var_c8h uint32_t"
+"afvb -204 var_cch int64_t"
+"afvb -208 var_d0h int64_t"
+"afvb -212 var_d4h int64_t"
+"afvb -216 var_d8h int64_t"
+"afvb -220 var_dch int64_t"
+"afvb -224 var_e0h int64_t"
 s-
 axd 0xdc 0xff1961
 axd 0xfff8 0xff19b9
@@ -2057,6 +2115,8 @@ axc 0xff1bb0 0xff1ba6
 axc 0x1d50 0xff1ba8
 axc 0xff1d52 0xff1ba8
 axc 0xff1b4d 0xff1bad
+axc 0x1b4d 0xff1bae
+axc 0xff1b4d 0xff1bae
 axC 0xff04e8 0xff1bcc
 axc 0xff1d52 0xff1bd3
 axd 0xffff 0xff1bf1
@@ -2071,6 +2131,8 @@ axc 0xff1c7a 0xff1c70
 axc 0x1d50 0xff1c72
 axc 0xff1d52 0xff1c72
 axc 0xff1c06 0xff1c77
+axc 0x1c06 0xff1c78
+axc 0xff1c06 0xff1c78
 axd 0x17 0xff1c82
 axd 0x0 0xff1c88
 axC 0xff0300 0xff1c96
@@ -2136,24 +2198,24 @@ s 0xff2589
 "afc amd64"
 s-
 s 0xff2589
-'afvb 8 arg_8h int64_t
-'afvb 12 arg_ch int64_t
-'afvb -12 var_ch int64_t
-'afvb -24 var_18h int64_t
-'afvb -296 var_128h int64_t
-'afvb -304 var_130h int64_t
-'afvb -308 var_134h int64_t
-'afvb -312 var_138h int64_t
-'afvb -316 var_13ch int64_t
-'afvb -320 var_140h int64_t
-'afvb -324 var_144h int64_t
-'afvb -328 var_148h int64_t
-'afvb -332 var_14ch int64_t
-'afvb -336 var_150h int64_t
-'afvb -340 var_154h int64_t
-'afvb -344 var_158h int64_t
-'afvb -346 var_15ah int64_t
-'afvb -364 var_16ch signed int64_t
+"afvb 12 arg_ch int64_t"
+"afvb 8 arg_8h int64_t"
+"afvb -12 var_ch int64_t"
+"afvb -24 var_18h int64_t"
+"afvb -296 var_128h int64_t"
+"afvb -304 var_130h int64_t"
+"afvb -308 var_134h int64_t"
+"afvb -312 var_138h int64_t"
+"afvb -316 var_13ch int64_t"
+"afvb -320 var_140h int64_t"
+"afvb -324 var_144h int64_t"
+"afvb -328 var_148h int64_t"
+"afvb -332 var_14ch int64_t"
+"afvb -336 var_150h int64_t"
+"afvb -340 var_154h int64_t"
+"afvb -344 var_158h int64_t"
+"afvb -346 var_15ah int64_t"
+"afvb -364 var_16ch signed int64_t"
 s-
 axd 0x16c 0xff258f
 axC 0xff2a40 0xff2598
@@ -2246,47 +2308,42 @@ afS 472 @ 0xff2589
 
 # registers
 fs+registers
-f rax 8 0x00000000
-f rbx 8 0x00000000
-f rcx 8 0x00000000
-f rdx 8 0x00000000
-f rsi 8 0x00000000
-f rdi 8 0x00000000
-f r8 8 0x00000000
-f r9 8 0x00000000
-f r10 8 0x00000000
-f r11 8 0x00000000
-f r12 8 0x00000000
-f r13 8 0x00000000
-f r14 8 0x00000000
-f r15 8 0x00000000
-f rip 8 0x00000000
-f rbp 8 0x00000000
-f rflags 8 0x00000000
-f rsp 8 0x00000000
+f ip 2 0x00000000
+f ax 2 0x00000000
+f bx 2 0x00000000
+f cx 2 0x00000000
+f dx 2 0x00000000
+f sp 2 0x00000000
+f bp 2 0x00000000
+f si 2 0x00000000
+f di 2 0x00000000
+f flags 2 0x00000000
 fs-
-aer rax = 0x00000000
-aer rbx = 0x00000000
-aer rcx = 0x00000000
-aer rdx = 0x00000000
-aer rsi = 0x00000000
-aer rdi = 0x00000000
-aer r8 = 0x00000000
-aer r9 = 0x00000000
-aer r10 = 0x00000000
-aer r11 = 0x00000000
-aer r12 = 0x00000000
-aer r13 = 0x00000000
-aer r14 = 0x00000000
-aer r15 = 0x00000000
-aer rip = 0x00000000
-aer rbp = 0x00000000
-aer rflags = 0x00000000
-aer rsp = 0x00000000
+aer ip = 0x00000000
+aer ax = 0x00000000
+aer bx = 0x00000000
+aer cx = 0x00000000
+aer dx = 0x00000000
+aer sp = 0x00000000
+aer bp = 0x00000000
+aer si = 0x00000000
+aer di = 0x00000000
+aer flags = 0x00000000
 # flags
 fs functions
 f fcn.00000000 28 0x00000000 
 fs registers
+f oeax 4 0x00000000 
+f eax 4 0x00000000 
+f ebx 4 0x00000000 
+f ecx 4 0x00000000 
+f edx 4 0x00000000 
+f esi 4 0x00000000 
+f edi 4 0x00000000 
+f esp 4 0x00000000 
+f ebp 4 0x00000000 
+f eip 4 0x00000000 
+f eflags 4 0x00000000 
 f rax 8 0x00000000 
 f rbx 8 0x00000000 
 f rcx 8 0x00000000 
@@ -76019,6 +76076,7 @@ axc 0xff06f8 0xff06d5
 axc 0xff06ea 0xff06e6
 axc 0xff06d3 0xff06f5
 axc 0x6d3 0xff06f6
+axc 0xff06d3 0xff06f6
 axd 0x10 0xff06fb
 axd 0x64 0xff0709
 axc 0xff0777 0xff0734
@@ -76321,6 +76379,7 @@ axc 0xff1928 0xff1796
 axc 0xff17c3 0xff17b7
 axc 0xff17c5 0xff17c0
 axc 0x17c5 0xff17c1
+axc 0xff17c5 0xff17c1
 axc 0xff1777 0xff17ca
 axc 0xff190e 0xff17d0
 axd 0x200 0xff17d9
@@ -76333,6 +76392,7 @@ axc 0xff1928 0xff1816
 axc 0xff1841 0xff1835
 axc 0xff1843 0xff183e
 axc 0x1843 0xff183f
+axc 0xff1843 0xff183f
 axd 0x3f 0xff1843
 axc 0xff17f5 0xff1846
 axd 0x40 0xff1848
@@ -76413,6 +76473,7 @@ axc 0x1d50 0xff1ba8
 axc 0xff1d52 0xff1ba8
 axc 0xff1b4d 0xff1bad
 axc 0x1b4d 0xff1bae
+axc 0xff1b4d 0xff1bae
 axC 0xff04e8 0xff1bcc
 axc 0xff1d52 0xff1bd3
 axd 0xffff 0xff1bf1
@@ -76428,6 +76489,7 @@ axc 0x1d50 0xff1c72
 axc 0xff1d52 0xff1c72
 axc 0xff1c06 0xff1c77
 axc 0x1c06 0xff1c78
+axc 0xff1c06 0xff1c78
 axd 0x17 0xff1c82
 axd 0x0 0xff1c88
 axC 0xff0300 0xff1c96
@@ -79348,6 +79410,14 @@ ahb 16 @ 0xffffb8
 "tk lgammaf=func"
 "tk lgammal=func"
 "tk link.00ffff74=gdt32"
+"tk link.00ffff80=seg_dsc"
+"tk link.00ffff88=seg_dsc"
+"tk link.00ffff90=seg_dsc"
+"tk link.00ffff98=seg_dsc"
+"tk link.00ffffa0=seg_dsc"
+"tk link.00ffffa8=seg_dsc"
+"tk link.00ffffb0=seg_dsc"
+"tk link.00ffffb8=seg_dsc"
 "tk listxattr=func"
 "tk llabs=func"
 "tk lldiv=func"
@@ -79455,7 +79525,7 @@ ahb 16 @ 0xffffb8
 "tk raise=func"
 "tk rand=func"
 "tk random=func"
-"tk range.ff=0xffff74"
+"tk range.ff=0xffff74,0xffff80,0xffff88,0xffff90,0xffff98,0xffffa0,0xffffa8,0xffffb0,0xffffb8"
 "tk read=func"
 "tk readlink=func"
 "tk realloc=func"
@@ -79557,23 +79627,25 @@ ahb 16 @ 0xffffb8
 "tk struct.gdt32.offset.meta=0"
 "tk struct.gdt32.size=uint16_t,0,0"
 "tk struct.gdt32.size.meta=1"
-"tk struct.seg_dsc=base_0,limit_0,t,a,b"
-"tk struct.seg_dsc.a=uint8_t,3,0"
+"tk struct.seg_dsc=limit0,base0,base1,type_s_dpl_p,limit1_avl_l_db_g,base2"
 "tk struct.seg_dsc.a.bitfield.pos=1"
 "tk struct.seg_dsc.a.bitfield.size=2"
-"tk struct.seg_dsc.a.meta=2"
-"tk struct.seg_dsc.b=uint8_t,3,0"
 "tk struct.seg_dsc.b.bitfield.pos=3"
 "tk struct.seg_dsc.b.bitfield.size=1"
-"tk struct.seg_dsc.b.meta=2"
-"tk struct.seg_dsc.base_0=uint16_t,0,0"
-"tk struct.seg_dsc.base_0.meta=1"
-"tk struct.seg_dsc.limit_0=uint8_t,2,0"
-"tk struct.seg_dsc.limit_0.meta=2"
-"tk struct.seg_dsc.t=uint8_t,3,0"
+"tk struct.seg_dsc.base0=uint16_t,2,0"
+"tk struct.seg_dsc.base0.meta=1"
+"tk struct.seg_dsc.base1=uint8_t,4,0"
+"tk struct.seg_dsc.base1.meta=2"
+"tk struct.seg_dsc.base2=uint8_t,7,0"
+"tk struct.seg_dsc.base2.meta=2"
+"tk struct.seg_dsc.limit0=uint16_t,0,0"
+"tk struct.seg_dsc.limit0.meta=1"
+"tk struct.seg_dsc.limit1_avl_l_db_g=uint8_t,6,0"
+"tk struct.seg_dsc.limit1_avl_l_db_g.meta=2"
 "tk struct.seg_dsc.t.bitfield.pos=0"
 "tk struct.seg_dsc.t.bitfield.size=1"
-"tk struct.seg_dsc.t.meta=2"
+"tk struct.seg_dsc.type_s_dpl_p=uint8_t,5,0"
+"tk struct.seg_dsc.type_s_dpl_p.meta=2"
 "tk strxfrm=func"
 "tk swift_beginAccess=func"
 "tk swift_bridgeObjectRelease=func"
@@ -79750,4 +79822,4 @@ ahb 16 @ 0xffffb8
 # macros
 # aliases
 # seek
-s 0x00ffff63
+s 0x00ffff73
